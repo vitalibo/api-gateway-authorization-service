@@ -1,0 +1,5 @@
+{
+  "type": "TOKEN",
+  "authorizationToken": "Basic dXNlcjoxMjM0",
+  "methodArn": "arn:aws:execute-api:eu-west-1:1234567890:qwerty12345/v1/GET/resource/*"
+}

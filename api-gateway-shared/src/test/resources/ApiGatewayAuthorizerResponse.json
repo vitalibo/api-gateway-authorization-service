@@ -1,0 +1,24 @@
+{
+  "principalId": "32944624-1f4a-4f34-bdf6-5450679ef1bf",
+  "policyDocument": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "1",
+        "Effect": "Allow",
+        "Action": [
+          "execute-api:Invoke"
+        ],
+        "Resource": [
+          "arn:aws:execute-api:eu-west-1:1234567890:qwerty12345/v1/GET/resource/*"
+        ]
+      }
+    ]
+  },
+  "context": {
+    "stringKey": "value",
+    "numberKey": 1,
+    "doubleKey": 1.1,
+    "booleanKey": true
+  }
+}
