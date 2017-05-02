@@ -13,9 +13,10 @@
         <jdk.version>1.8</jdk.version>
         <aws.java.sdk.version>1.11.123</aws.java.sdk.version>
         <aws.lambda.core.version>1.1.0</aws.lambda.core.version>
-        <slf4j.version>1.7.25</slf4j.version>
+        <slf4j.version>1.7.21</slf4j.version>
         <lombok.version>1.16.16</lombok.version>
-        <testng.version>6.11</testng.version>
+        <nimbus.jose.jwt.version>4.30</nimbus.jose.jwt.version>
+        <testng.version>6.10</testng.version>
         <mockito.core.version>2.7.22</mockito.core.version>
         <maven.compiler.plugin.version>3.6.1</maven.compiler.plugin.version>
         <maven.shade.plugin.version>3.0.0</maven.shade.plugin.version>
@@ -35,6 +36,11 @@
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-lambda-java-core</artifactId>
                 <version>${aws.lambda.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus.jose.jwt.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
