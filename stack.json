@@ -1,0 +1,186 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template of infrastructure for Authorization Service",
+  "Parameters": {
+    "UserName": {
+      "Type": "String",
+      "Default": "authorization-service",
+      "Description": "User name"
+    },
+    "DeploymentBucket": {
+      "Type": "String",
+      "Default": "com.github.vitalibo.develop",
+      "Description": "The S3 bucket name for Lambda sources"
+    }
+  },
+  "Resources": {
+    "UserPool": {
+      "Type": "AWS::Cognito::UserPool",
+      "Properties": {
+        "AdminCreateUserConfig": {
+          "AllowAdminCreateUserOnly": true,
+          "UnusedAccountValidityDays": 90
+        },
+        "AliasAttributes": [
+          "email"
+        ],
+        "AutoVerifiedAttributes": [
+          "email"
+        ],
+        "MfaConfiguration": "OFF",
+        "Policies": {
+          "PasswordPolicy": {
+            "MinimumLength": 8,
+            "RequireLowercase": true,
+            "RequireNumbers": true,
+            "RequireSymbols": false,
+            "RequireUppercase": true
+          }
+        },
+        "UserPoolName": {
+          "Fn::Sub": "${UserName}_user_pool"
+        },
+        "Schema": [
+          {
+            "AttributeDataType": "String",
+            "DeveloperOnlyAttribute": false,
+            "Mutable": true,
+            "Name": "email",
+            "StringAttributeConstraints": {
+              "MaxLength": 128,
+              "MinLength": 5
+            },
+            "Required": "true"
+          }
+        ]
+      }
+    },
+    "AuthorizationServerApp": {
+      "Type": "AWS::Cognito::UserPoolClient",
+      "Properties": {
+        "ClientName": {
+          "Fn::Sub": "${UserName}-server-application"
+        },
+        "ExplicitAuthFlows": [
+          "ADMIN_NO_SRP_AUTH"
+        ],
+        "GenerateSecret": false,
+        "RefreshTokenValidity": 30,
+        "UserPoolId": {
+          "Ref": "UserPool"
+        }
+      }
+    },
+    "AdminUser": {
+      "Type": "AWS::Cognito::UserPoolUser",
+      "Properties": {
+        "UserAttributes": [
+          {
+            "Name": "email",
+            "Value": "boyarsky.vitaliy@live.com"
+          }
+        ],
+        "Username": "admin",
+        "UserPoolId": {
+          "Ref": "UserPool"
+        }
+      }
+    },
+    "ApiGatewayGroup": {
+      "Type": "AWS::Cognito::UserPoolGroup",
+      "Properties": {
+        "Description": "This group allow execute AWS Api Gateway any resources",
+        "GroupName": "ApiGatewayFullAccess",
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "ApiGatewayRole",
+            "Arn"
+          ]
+        },
+        "UserPoolId": {
+          "Ref": "UserPool"
+        }
+      }
+    },
+    "ApiGatewayRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "Path": "/",
+        "RoleName": {
+          "Fn::Sub": "${UserName}-api-gateway-role"
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "apigateway.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "Inline",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "execute-api:Invoke"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "UserToGroupAttachment": {
+      "Type": "AWS::Cognito::UserPoolUserToGroupAttachment",
+      "Properties": {
+        "GroupName": {
+          "Ref": "ApiGatewayGroup"
+        },
+        "Username": {
+          "Ref": "AdminUser"
+        },
+        "UserPoolId": {
+          "Ref": "UserPool"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "UserPoolId": {
+      "Value": {
+        "Ref": "UserPool"
+      }
+    },
+    "UserPoolArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "UserPool",
+          "Arn"
+        ]
+      }
+    },
+    "ClientId": {
+      "Value": {
+        "Ref": "AuthorizationServerApp"
+      }
+    }
+  }
+}
