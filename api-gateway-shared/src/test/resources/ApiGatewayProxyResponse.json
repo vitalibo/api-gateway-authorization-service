@@ -1,0 +1,8 @@
+{
+  "isBase64Encoded": true,
+  "statusCode": 200,
+  "headers": {
+    "Cache-Control": "max-age=60"
+  },
+  "body": "{\"message\":\"Hello-World!\"}"
+}
