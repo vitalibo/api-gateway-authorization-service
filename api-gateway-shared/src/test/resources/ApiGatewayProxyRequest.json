@@ -55,5 +55,5 @@
     "apiId": "gy415nuibc"
   },
   "body": "{\r\n\t\"a\": 1\r\n}",
-  "isBase64Encoded": false
+  "isBase64Encoded": true
 }

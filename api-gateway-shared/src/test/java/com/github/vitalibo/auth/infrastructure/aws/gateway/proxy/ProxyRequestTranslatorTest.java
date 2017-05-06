@@ -7,13 +7,15 @@ import org.testng.annotations.Test;
 
 import java.util.Map;
 
-public class ProxyRequestTest {
+public class ProxyRequestTranslatorTest {
 
     @Test
-    public void testMake() {
-        ProxyRequest actual = Jackson.fromJsonString(
+    public void testFrom() {
+        ProxyRequest request = Jackson.fromJsonString(
             TestHelper.resourceAsString("/ApiGatewayProxyRequest.json"),
             ProxyRequest.class);
+
+        ProxyRequest actual = ProxyRequestTranslator.ofNullable(request);
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(actual.getResource(), "/{proxy+}");
@@ -39,6 +41,26 @@ public class ProxyRequestTest {
         Assert.assertEquals(identity.get("sourceIp"), "192.168.196.186");
         Assert.assertEquals(actual.getBody(), "{\r\n\t\"a\": 1\r\n}");
         Assert.assertTrue(actual.getIsBase64Encoded());
+    }
+
+    @Test
+    public void testNotNull() {
+        ProxyRequest request = Jackson.fromJsonString(
+            "{}", ProxyRequest.class);
+
+        ProxyRequest actual = ProxyRequestTranslator.ofNullable(request);
+
+        Assert.assertNotNull(actual);
+        Assert.assertNotNull(actual.getResource());
+        Assert.assertNotNull(actual.getPath());
+        Assert.assertNotNull(actual.getHttpMethod());
+        Assert.assertNotNull(actual.getHeaders());
+        Assert.assertNotNull(actual.getQueryStringParameters());
+        Assert.assertNotNull(actual.getPathParameters());
+        Assert.assertNotNull(actual.getStageVariables());
+        Assert.assertNotNull(actual.getRequestContext());
+        Assert.assertNotNull(actual.getBody());
+        Assert.assertNotNull(actual.getIsBase64Encoded());
     }
 
 }
