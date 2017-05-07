@@ -17,7 +17,7 @@ public class ProxyResponseTest {
         ProxyResponse actual = new ProxyResponse.Builder()
             .withIsBase64Encoded(true)
             .withHeader(HttpHeaders.CACHE_CONTROL, "max-age=60")
-            .withBody(Collections.singletonMap("message", "Hello-World!"))
+            .withBody(Collections.singletonMap("message", "Hello World!"))
             .withStatusCode(HttpStatus.SC_OK)
             .build();
 

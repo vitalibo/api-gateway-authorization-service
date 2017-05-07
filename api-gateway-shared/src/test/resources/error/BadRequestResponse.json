@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "message": "Bad Request",
+  "errors": {
+    "key": [
+      "foo",
+      "bar"
+    ]
+  },
+  "request-id": "aq1sw2de3fr4gt5hy6ju7ki8lo9p0"
+}

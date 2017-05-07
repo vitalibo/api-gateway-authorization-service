@@ -4,5 +4,5 @@
   "headers": {
     "Cache-Control": "max-age=60"
   },
-  "body": "{\"message\":\"Hello-World!\"}"
+  "body": "{\"message\":\"Hello World!\"}"
 }
