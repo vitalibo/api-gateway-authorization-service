@@ -11,6 +11,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
+    <script>#include("index.js")</script>
 </head>
 <body>
 <div class="col-md-8 hidden-sm hidden-xs" style="padding-left: 0; padding-right: 0">
@@ -47,7 +48,7 @@
         </form>
     </div>
     <div class="col-md-12" id="usage" style="padding-top: 15%" hidden>
-        #include("readme.html")
+        #include("welcome.html")
     </div>
     <footer style="position: fixed; bottom: 0;padding-left: 15px;">
         <h6>
@@ -55,58 +56,5 @@
         </h6>
     </footer>
 </div>
-<script>
-
-    function showResponseMessage(result) {
-        var alert = $("#alert");
-        alert.show("slow").delay(3000).hide("slow");
-
-        if (result.acknowledged === true) {
-            alert.attr("class", "alert alert-success");
-        } else {
-            alert.attr("class", "alert alert-danger")
-        }
-
-        alert.text(result.message)
-    }
-
-    $(document).ready(function () {
-        $('#submit_form').on('submit', function (e) {
-            e.preventDefault();
-
-            $.ajax({
-                url: "/v1/account",
-                method: "POST",
-                data: {
-                    username: $('#username').val(),
-                    previous_password: $('#previous_password').val(),
-                    proposed_password: $('#proposed_password').val()
-                },
-                success: function (result) {
-                    showResponseMessage(result);
-
-                    if (result.acknowledged === true) {
-                        $("#change_password").hide();
-                        $("#usage").show();
-                    }
-                }
-            });
-        });
-
-        var password = document.getElementById("proposed_password"),
-            confirm_password = document.getElementById("confirm_password");
-
-        function validatePassword() {
-            if (password.value !== confirm_password.value) {
-                confirm_password.setCustomValidity("Passwords Don't Match");
-            } else {
-                confirm_password.setCustomValidity('');
-            }
-        }
-
-        password.onchange = validatePassword;
-        confirm_password.onkeyup = validatePassword;
-    });
-</script>
 </body>
 </html>
