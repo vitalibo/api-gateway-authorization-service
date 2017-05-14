@@ -16,6 +16,7 @@
         <slf4j.version>1.7.21</slf4j.version>
         <lombok.version>1.16.16</lombok.version>
         <nimbus.jose.jwt.version>4.30</nimbus.jose.jwt.version>
+        <velocity.version>1.7</velocity.version>
         <testng.version>6.10</testng.version>
         <mockito.core.version>2.7.22</mockito.core.version>
         <maven.compiler.plugin.version>3.6.1</maven.compiler.plugin.version>
@@ -41,6 +42,11 @@
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>${nimbus.jose.jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>${velocity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>

@@ -10,4 +10,9 @@ public class CognitoUserPool implements UserPool {
         return null;
     }
 
+    @Override
+    public boolean changePassword(String username, String password, String newPassword) {
+        return false;
+    }
+
 }

@@ -1,0 +1,17 @@
+<h3>Welcome</h3>
+<br/>
+<p>To get access token, you need make request to the authorization service with your credentials and pass it as
+    authorization header</p>
+<pre>curl -X POST \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -H "Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=" \
+  --data 'grant_type=client_credentials' \
+  "https://auth.service.com/oauth/token"</pre>
+<p>in response you are receive object</p>
+<pre>{
+  "access_token": "&lt;ENCRYPTED_JWT_TOKEN&gt;",
+  "expires_in": 12345678,
+  "token_type": "Bearer"
+}</pre>
+<p>The next step is create request to protected resource, with following authorization header:</p>
+<pre>Authorization: Bearer &lt;ENCRYPTED_JWT_TOKEN&gt;</pre>

@@ -6,4 +6,6 @@ public interface UserPool {
 
     Principal auth(String username, String password);
 
+    boolean changePassword(String username, String password, String newPassword);
+
 }

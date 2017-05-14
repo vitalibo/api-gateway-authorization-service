@@ -24,25 +24,32 @@ public class ProxyRequestHandler implements RequestHandler<ProxyRequest, ProxyRe
     private final Factory factory;
 
     public ProxyRequestHandler() {
-        this(Factory.getFactory());
+        this(Factory.getInstance());
     }
 
     @Override
     public ProxyResponse handleRequest(ProxyRequest o, Context context) {
         final ProxyRequest request = ProxyRequestTranslator.ofNullable(o);
+        logger.debug("invoke lambda with {}", request);
 
         final Route route = Router.match(request);
         final Facade facade;
         switch (route) {
+            case CHANGE_PASSWORD:
+                facade = factory.createChangePasswordFacade();
+                break;
+
             case OAUTH2_CLIENT_CREDENTIALS:
                 facade = factory.createOAuth2ClientCredentialsFacade();
                 break;
+
             case NOT_FOUND:
                 return new HttpError.Builder()
                     .withStatusCode(HttpStatus.SC_NOT_FOUND)
                     .withRequestId(context.getAwsRequestId())
                     .build()
                     .asProxyResponse();
+
             default:
                 throw new IllegalStateException();
         }

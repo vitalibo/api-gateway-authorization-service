@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 public enum Route {
 
     NOT_FOUND("", ""),
-    OAUTH2_CLIENT_CREDENTIALS("/oauth/token", "POST");
+    OAUTH2_CLIENT_CREDENTIALS("/oauth/token", "POST"),
+    CHANGE_PASSWORD("/account", "GET|POST");
 
     @Getter
     private final Pattern path;
