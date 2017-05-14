@@ -19,7 +19,7 @@ public class Factory {
     }
 
     public ChangePasswordFacade createChangePasswordFacade() {
-        return new ChangePasswordFacade(new CognitoUserPool(), Factory.getVelocityEngine());
+        return null;
     }
 
     private static VelocityEngine makeVelocityEngine() {
