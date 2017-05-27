@@ -4,7 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.github.vitalibo.auth.core.ErrorState;
 import com.github.vitalibo.auth.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.auth.infrastructure.aws.gateway.proxy.ProxyResponse;
-import com.github.vitalibo.auth.server.core.facade.OAuth2ClientCredentialsFacade;
+import com.github.vitalibo.auth.server.core.facade.ClientCredentialsFacade;
 import com.github.vitalibo.auth.server.infrastructure.aws.Factory;
 import org.apache.http.HttpStatus;
 import org.mockito.Mock;
@@ -19,7 +19,7 @@ public class ProxyRequestHandlerTest {
     @Mock
     private Factory mockFactory;
     @Mock
-    private OAuth2ClientCredentialsFacade mockOAuth2ClientCredentialsFacade;
+    private ClientCredentialsFacade mockClientCredentialsFacade;
     @Mock
     private Context mockContext;
 
@@ -29,8 +29,8 @@ public class ProxyRequestHandlerTest {
     @BeforeMethod
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(mockFactory.createOAuth2ClientCredentialsFacade())
-            .thenReturn(mockOAuth2ClientCredentialsFacade);
+        Mockito.when(mockFactory.createClientCredentialsFacade())
+            .thenReturn(mockClientCredentialsFacade);
         lambda = new ProxyRequestHandler(mockFactory);
         proxyRequest = new ProxyRequest();
     }
@@ -48,12 +48,12 @@ public class ProxyRequestHandlerTest {
     }
 
     @Test
-    public void testBadRequest() {
+    public void testBadRequest() throws Exception {
         proxyRequest.setPath("/oauth/token");
         proxyRequest.setHttpMethod("POST");
         ErrorState errorState = new ErrorState();
         errorState.addError("key", "error message");
-        Mockito.when(mockOAuth2ClientCredentialsFacade.process(Mockito.any()))
+        Mockito.when(mockClientCredentialsFacade.process(Mockito.any()))
             .thenThrow(errorState);
 
         ProxyResponse actual = lambda.handleRequest(proxyRequest, mockContext);
@@ -65,17 +65,17 @@ public class ProxyRequestHandlerTest {
     }
 
     @Test(expectedExceptions = Exception.class)
-    public void testInternalServerError() {
+    public void testInternalServerError() throws Exception {
         proxyRequest.setPath("/oauth/token");
         proxyRequest.setHttpMethod("POST");
-        Mockito.when(mockOAuth2ClientCredentialsFacade.process(Mockito.any()))
+        Mockito.when(mockClientCredentialsFacade.process(Mockito.any()))
             .thenThrow(Exception.class);
 
         lambda.handleRequest(proxyRequest, mockContext);
     }
 
     @Test
-    public void testInvokeOAuth2ClientCredentialsFacade() {
+    public void testInvokeOAuth2ClientCredentialsFacade() throws Exception {
         proxyRequest.setPath("/oauth/token");
         proxyRequest.setHttpMethod("POST");
         ProxyResponse response = new ProxyResponse.Builder()
@@ -83,7 +83,7 @@ public class ProxyRequestHandlerTest {
             .withBody("OK")
             .build();
 
-        Mockito.when(mockOAuth2ClientCredentialsFacade.process(Mockito.any()))
+        Mockito.when(mockClientCredentialsFacade.process(Mockito.any()))
             .thenReturn(response);
 
         ProxyResponse actual = lambda.handleRequest(proxyRequest, mockContext);
@@ -91,7 +91,7 @@ public class ProxyRequestHandlerTest {
         Assert.assertNotNull(actual);
         Assert.assertEquals(actual.getStatusCode(), (Integer) HttpStatus.SC_OK);
         Assert.assertEquals(actual.getBody(), "OK");
-        Mockito.verify(mockOAuth2ClientCredentialsFacade).process(Mockito.any());
+        Mockito.verify(mockClientCredentialsFacade).process(Mockito.any());
     }
 
 }

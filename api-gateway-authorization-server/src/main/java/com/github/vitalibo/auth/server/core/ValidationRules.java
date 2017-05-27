@@ -3,6 +3,7 @@ package com.github.vitalibo.auth.server.core;
 import com.amazonaws.util.StringUtils;
 import com.github.vitalibo.auth.core.ErrorState;
 import com.github.vitalibo.auth.infrastructure.aws.gateway.proxy.ProxyRequest;
+import com.github.vitalibo.auth.server.core.model.ChangePasswordRequest;
 import com.github.vitalibo.auth.server.core.model.OAuth2Request;
 
 public class ValidationRules {
@@ -65,6 +66,36 @@ public class ValidationRules {
         if (StringUtils.isNullOrEmpty(clientSecret)) {
             errorState.addError(
                 "client_secret",
+                "Required fields cannot be empty");
+        }
+    }
+
+    public static void verifyUserName(ChangePasswordRequest request, ErrorState errorState) {
+        String username = request.getUsername();
+
+        if (StringUtils.isNullOrEmpty(username)) {
+            errorState.addError(
+                "username",
+                "Required fields cannot be empty");
+        }
+    }
+
+    public static void verifyPreviousPassword(ChangePasswordRequest request, ErrorState errorState) {
+        String previousPassword = request.getPreviousPassword();
+
+        if (StringUtils.isNullOrEmpty(previousPassword)) {
+            errorState.addError(
+                "previous_password",
+                "Required fields cannot be empty");
+        }
+    }
+
+    public static void verifyProposedPassword(ChangePasswordRequest request, ErrorState errorState) {
+        String proposedPassword = request.getProposedPassword();
+
+        if (StringUtils.isNullOrEmpty(proposedPassword)) {
+            errorState.addError(
+                "proposed_password",
                 "Required fields cannot be empty");
         }
     }

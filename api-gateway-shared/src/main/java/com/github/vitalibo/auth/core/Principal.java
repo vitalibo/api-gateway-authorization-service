@@ -7,5 +7,7 @@ public class Principal {
 
     private String id;
     private String username;
+    private String session;
+    private String accessToken;
 
 }

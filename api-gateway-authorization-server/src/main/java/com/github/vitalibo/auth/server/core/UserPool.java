@@ -4,8 +4,8 @@ import com.github.vitalibo.auth.core.Principal;
 
 public interface UserPool {
 
-    Principal auth(String username, String password);
+    Principal authenticate(String username, String password) throws UserPoolException;
 
-    boolean changePassword(String username, String password, String newPassword);
+    boolean changePassword(Principal principal, String newPassword) throws UserPoolException;
 
 }

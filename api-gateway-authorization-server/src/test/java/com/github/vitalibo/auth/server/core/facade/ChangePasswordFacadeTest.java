@@ -2,16 +2,17 @@ package com.github.vitalibo.auth.server.core.facade;
 
 import com.amazonaws.util.json.Jackson;
 import com.github.vitalibo.auth.core.ErrorState;
+import com.github.vitalibo.auth.core.Principal;
 import com.github.vitalibo.auth.core.Rule;
 import com.github.vitalibo.auth.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.auth.infrastructure.aws.gateway.proxy.ProxyResponse;
 import com.github.vitalibo.auth.server.core.UserPool;
+import com.github.vitalibo.auth.server.core.UserPoolException;
 import com.github.vitalibo.auth.server.core.model.ChangePasswordRequest;
 import com.github.vitalibo.auth.server.core.model.ChangePasswordResponse;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.velocity.Template;
-import org.apache.velocity.app.VelocityEngine;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -28,8 +29,6 @@ public class ChangePasswordFacadeTest {
     @Mock
     private UserPool mockUserPool;
     @Mock
-    private VelocityEngine mockVelocityEngine;
-    @Mock
     private Template mockTemplate;
     @Spy
     private ErrorState spyErrorState;
@@ -41,17 +40,16 @@ public class ChangePasswordFacadeTest {
     private ChangePasswordFacade facade;
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp() throws UserPoolException {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(mockVelocityEngine.getTemplate(Mockito.any()))
-            .thenReturn(mockTemplate);
         facade = new ChangePasswordFacade(
-            mockUserPool, mockVelocityEngine,
-            spyErrorState, mockPreRules, mockPostRules);
+            spyErrorState, mockUserPool, mockTemplate, mockPreRules, mockPostRules);
+        Mockito.when(mockUserPool.authenticate(Mockito.eq("admin"), Mockito.eq("foo")))
+            .thenReturn(new Principal());
     }
 
     @Test
-    public void testInvokeGetMethod() {
+    public void testInvokeGetMethod() throws Exception {
         ProxyRequest request = new ProxyRequest();
         request.setHttpMethod("GET");
         Mockito.doAnswer(o -> {
@@ -68,11 +66,9 @@ public class ChangePasswordFacadeTest {
     }
 
     @Test
-    public void testSuccessChangePassword() {
-        ProxyRequest request = new ProxyRequest();
-        request.setHttpMethod("POST");
-        request.setBody("username=admin");
-        Mockito.when(mockUserPool.changePassword(Mockito.eq("admin"), Mockito.any(), Mockito.any()))
+    public void testSuccessChangePassword() throws Exception {
+        ProxyRequest request = makeProxyRequest();
+        Mockito.when(mockUserPool.changePassword(Mockito.any(Principal.class), Mockito.eq("bar")))
             .thenReturn(true);
 
         ProxyResponse actual = facade.process(request);
@@ -86,12 +82,10 @@ public class ChangePasswordFacadeTest {
     }
 
     @Test
-    public void testFailChangePassword() {
-        ProxyRequest request = new ProxyRequest();
-        request.setHttpMethod("POST");
-        request.setBody("username=admin");
-        Mockito.when(mockUserPool.changePassword(Mockito.eq("admin"), Mockito.any(), Mockito.any()))
-            .thenReturn(false);
+    public void testFailChangePassword() throws Exception {
+        ProxyRequest request = makeProxyRequest();
+        Mockito.when(mockUserPool.changePassword(Mockito.any(Principal.class), Mockito.eq("bar")))
+            .thenThrow(new UserPoolException("foo"));
 
         ProxyResponse actual = facade.process(request);
 
@@ -101,6 +95,13 @@ public class ChangePasswordFacadeTest {
         ChangePasswordResponse response = Jackson.fromJsonString(actual.getBody(), ChangePasswordResponse.class);
         Assert.assertFalse(response.getAcknowledged());
         Assert.assertFalse(response.getMessage().contains("successfully"));
+    }
+
+    private static ProxyRequest makeProxyRequest() {
+        ProxyRequest request = new ProxyRequest();
+        request.setHttpMethod("POST");
+        request.setBody("username=admin&previous_password=foo&proposed_password=bar");
+        return request;
     }
 
 }

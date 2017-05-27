@@ -40,7 +40,7 @@ public class ProxyRequestHandler implements RequestHandler<ProxyRequest, ProxyRe
                 break;
 
             case OAUTH2_CLIENT_CREDENTIALS:
-                facade = factory.createOAuth2ClientCredentialsFacade();
+                facade = factory.createClientCredentialsFacade();
                 break;
 
             case NOT_FOUND:
@@ -65,7 +65,7 @@ public class ProxyRequestHandler implements RequestHandler<ProxyRequest, ProxyRe
                 .asProxyResponse();
         } catch (Exception e) {
             logger.error("Internal Server Error", e);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 

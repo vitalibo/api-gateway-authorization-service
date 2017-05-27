@@ -5,6 +5,6 @@ import com.github.vitalibo.auth.infrastructure.aws.gateway.proxy.ProxyResponse;
 
 public interface Facade {
 
-    ProxyResponse process(ProxyRequest request);
+    ProxyResponse process(ProxyRequest request) throws Exception;
 
 }
