@@ -6,7 +6,10 @@ import com.github.vitalibo.auth.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.auth.server.core.model.ChangePasswordRequest;
 import com.github.vitalibo.auth.server.core.model.OAuth2Request;
 
-public class ValidationRules {
+public final class ValidationRules {
+
+    private ValidationRules() {
+    }
 
     public static void verifyBody(ProxyRequest request, ErrorState errorState) {
         String body = request.getBody();

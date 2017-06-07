@@ -2,6 +2,7 @@ package com.github.vitalibo.auth.server.core;
 
 import com.github.vitalibo.auth.core.ErrorState;
 import com.github.vitalibo.auth.infrastructure.aws.gateway.proxy.ProxyRequest;
+import com.github.vitalibo.auth.server.core.model.ChangePasswordRequest;
 import com.github.vitalibo.auth.server.core.model.OAuth2Request;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -143,5 +144,69 @@ public class ValidationRulesTest {
         Assert.assertTrue(errorState.hasErrors());
         Assert.assertNotNull(errorState.get("client_secret"));
     }
+
+    @Test
+    public void testPassVerifyUserName() {
+        ChangePasswordRequest request = new ChangePasswordRequest();
+        request.setUsername("foo");
+
+        ValidationRules.verifyUserName(request, errorState);
+
+        Assert.assertFalse(errorState.hasErrors());
+    }
+
+    @Test(dataProvider = "samples")
+    public void testFailVerifyUserName(String userName) {
+        ChangePasswordRequest request = new ChangePasswordRequest();
+        request.setUsername(userName);
+
+        ValidationRules.verifyUserName(request, errorState);
+
+        Assert.assertTrue(errorState.hasErrors());
+        Assert.assertNotNull(errorState.get("username"));
+    }
+
+    @Test
+    public void testPassVerifyPreviousPassword() {
+        ChangePasswordRequest request = new ChangePasswordRequest();
+        request.setPreviousPassword("foo");
+
+        ValidationRules.verifyPreviousPassword(request, errorState);
+
+        Assert.assertFalse(errorState.hasErrors());
+    }
+
+    @Test(dataProvider = "samples")
+    public void testFailVerifyPreviousPassword(String previousPassword) {
+        ChangePasswordRequest request = new ChangePasswordRequest();
+        request.setPreviousPassword(previousPassword);
+
+        ValidationRules.verifyPreviousPassword(request, errorState);
+
+        Assert.assertTrue(errorState.hasErrors());
+        Assert.assertNotNull(errorState.get("previous_password"));
+    }
+
+    @Test
+    public void testPassVerifyProposedPassword() {
+        ChangePasswordRequest request = new ChangePasswordRequest();
+        request.setProposedPassword("foo");
+
+        ValidationRules.verifyProposedPassword(request, errorState);
+
+        Assert.assertFalse(errorState.hasErrors());
+    }
+
+    @Test(dataProvider = "samples")
+    public void testFailVerifyProposedPassword(String proposedPassword) {
+        ChangePasswordRequest request = new ChangePasswordRequest();
+        request.setProposedPassword(proposedPassword);
+
+        ValidationRules.verifyProposedPassword(request, errorState);
+
+        Assert.assertTrue(errorState.hasErrors());
+        Assert.assertNotNull(errorState.get("proposed_password"));
+    }
+
 
 }
