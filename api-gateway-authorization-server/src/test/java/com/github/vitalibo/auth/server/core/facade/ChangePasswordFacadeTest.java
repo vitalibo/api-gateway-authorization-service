@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Collections;
 
 public class ChangePasswordFacadeTest {
 
@@ -100,6 +101,8 @@ public class ChangePasswordFacadeTest {
     private static ProxyRequest makeProxyRequest() {
         ProxyRequest request = new ProxyRequest();
         request.setHttpMethod("POST");
+        request.setHeaders(Collections.singletonMap(
+            HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=UTF-8"));
         request.setBody("username=admin&previous_password=foo&proposed_password=bar");
         return request;
     }

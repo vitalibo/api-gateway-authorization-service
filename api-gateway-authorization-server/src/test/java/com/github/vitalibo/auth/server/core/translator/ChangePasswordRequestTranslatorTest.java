@@ -2,15 +2,18 @@ package com.github.vitalibo.auth.server.core.translator;
 
 import com.github.vitalibo.auth.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.auth.server.core.model.ChangePasswordRequest;
+import org.apache.http.HttpHeaders;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Collections;
 
 public class ChangePasswordRequestTranslatorTest {
 
     @Test
     public void testTranslate() {
-        ProxyRequest request = new ProxyRequest();
-        request.setBody("username=admin&previous_password=Welcome2017!&proposed_password=Aq1Sw2De3");
+        ProxyRequest request = makeProxyRequest(
+            "username=admin&previous_password=Welcome2017!&proposed_password=Aq1Sw2De3");
 
         ChangePasswordRequest actual = ChangePasswordRequestTranslator.from(request);
 
@@ -22,13 +25,20 @@ public class ChangePasswordRequestTranslatorTest {
 
     @Test
     public void testTranslateEmpty() {
-        ProxyRequest request = new ProxyRequest();
-        request.setBody("");
+        ProxyRequest request = makeProxyRequest("");
 
         ChangePasswordRequest actual = ChangePasswordRequestTranslator.from(request);
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(actual, new ChangePasswordRequest());
+    }
+
+    private static ProxyRequest makeProxyRequest(String body) {
+        ProxyRequest request = new ProxyRequest();
+        request.setHeaders(Collections.singletonMap(
+            HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=UTF-8"));
+        request.setBody(body);
+        return request;
     }
 
 }

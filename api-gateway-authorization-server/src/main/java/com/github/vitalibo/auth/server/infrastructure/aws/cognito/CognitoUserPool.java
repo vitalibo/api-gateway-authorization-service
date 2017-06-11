@@ -40,7 +40,7 @@ public class CognitoUserPool implements UserPool {
             Principal principal = new Principal();
             principal.setUsername(username);
             principal.setSession(authResult.getSession());
-            principal.setAccessToken(Optional.of(authResult.getAuthenticationResult())
+            principal.setAccessToken(Optional.ofNullable(authResult.getAuthenticationResult())
                 .map(AuthenticationResultType::getIdToken).orElse(null));
             return principal;
         } catch (NotAuthorizedException | UserNotFoundException e) {
