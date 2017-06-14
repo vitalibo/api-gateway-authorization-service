@@ -1,7 +1,10 @@
 package com.github.vitalibo.auth.jwt.infrastructure.aws;
 
 import com.amazonaws.regions.Regions;
-import com.github.vitalibo.auth.jwt.core.JWT;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
+import com.github.vitalibo.auth.jwt.core.Jwt;
+import com.github.vitalibo.auth.jwt.core.PolicyRepository;
+import com.github.vitalibo.auth.jwt.infrastructure.aws.iam.RolePolicyRepository;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -31,8 +34,15 @@ public class Factory {
                 awsRegion.getName(), env.get(AWS_COGNITO_USER_POOL_ID))));
     }
 
-    public JWT createJWT() {
-        return new JWT(jwkSource);
+    public Jwt createJsonWebToken() {
+        return new Jwt(jwkSource);
+    }
+
+    public PolicyRepository createRolePolicyRepository() {
+        return new RolePolicyRepository(
+            AmazonIdentityManagementClientBuilder.standard()
+                .withRegion(awsRegion)
+                .build());
     }
 
 }

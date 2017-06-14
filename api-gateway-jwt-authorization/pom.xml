@@ -20,6 +20,10 @@
             <artifactId>aws-lambda-java-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-iam</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.vitalibo</groupId>
             <artifactId>api-gateway-shared</artifactId>
             <version>${project.version}</version>

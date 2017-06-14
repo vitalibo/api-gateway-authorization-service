@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
-public class JWT {
+public class Jwt {
 
     private static final Pattern AUTHORIZATION_HEADER_PATTERN =
         Pattern.compile("Bearer (?<jwt>[0-9A-Za-z.\\-_]*)");
