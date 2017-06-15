@@ -1,0 +1,25 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "1",
+      "Effect": "Allow",
+      "Action": [
+        "execute-api:Invoke"
+      ],
+      "Resource": [
+        "arn:aws:execute-api:eu-west-1:12344567890:*/GET/*"
+      ]
+    },
+    {
+      "Sid": "1",
+      "Effect": "Deny",
+      "Action": [
+        "execute-api:Invoke"
+      ],
+      "Resource": [
+        "arn:aws:execute-api:eu-west-1:0987654321:*/POST/*"
+      ]
+    }
+  ]
+}

@@ -29,7 +29,6 @@ public class RolePolicyRepository implements PolicyRepository {
         List<Policy> policies = claims.getRoles()
             .stream()
             .flatMap(RolePolicyRepository::retrieveRoleName)
-            .parallel()
             .map(this::getRolePolicy)
             .collect(Collectors.toList());
 

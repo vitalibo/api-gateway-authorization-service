@@ -1,0 +1,1 @@
+%7B%22Version%22%3A%222012-10-17%22%2C%22Statement%22%3A%5B%7B%22Sid%22%3A%221%22%2C%22Effect%22%3A%22Deny%22%2C%22Action%22%3A%5B%22execute-api%3AInvoke%22%5D%2C%22Resource%22%3A%5B%22arn%3Aaws%3Aexecute-api%3Aeu-west-1%3A0987654321%3A%2A%2FPOST%2F%2A%22%5D%7D%5D%7D
