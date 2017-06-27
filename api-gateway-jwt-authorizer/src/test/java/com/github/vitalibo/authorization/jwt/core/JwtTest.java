@@ -54,7 +54,7 @@ public class JwtTest {
     }
 
     @Test(dataProvider = "samplesIncorrectHeaderFormat",
-        expectedExceptions = AuthorizationException.class,
+        expectedExceptions = JwtVerificationException.class,
         expectedExceptionsMessageRegExp = "Incorrect header format")
     public void testIncorrectHeaderFormat(String header) {
         jwt.verify(header);
@@ -69,7 +69,7 @@ public class JwtTest {
     }
 
     @Test(dataProvider = "samplesIncorrectJWTToken",
-        expectedExceptions = AuthorizationException.class,
+        expectedExceptions = JwtVerificationException.class,
         expectedExceptionsMessageRegExp = "JWT couldn't be parsed")
     public void testIncorrectJWTToken(String accessToken) {
         jwt.verify("Bearer " + accessToken);
@@ -84,7 +84,7 @@ public class JwtTest {
         Assert.assertEquals(claims.getRoles(), Arrays.asList("role1", "role2"));
     }
 
-    @Test(expectedExceptions = AuthorizationException.class,
+    @Test(expectedExceptions = JwtVerificationException.class,
         expectedExceptionsMessageRegExp = "JWS object didn't pass the verification")
     public void testUnknownJWT() throws JOSEException {
         JWTClaimsSet claims = claims(expirationTime(60), "role1", "role2");
@@ -93,13 +93,13 @@ public class JwtTest {
         jwt.verify(header);
     }
 
-    @Test(expectedExceptions = AuthorizationException.class,
+    @Test(expectedExceptions = JwtVerificationException.class,
         expectedExceptionsMessageRegExp = "JWS object didn't pass the verification")
     public void testBadSignature() {
         jwt.verify("Bearer " + accessToken + "a");
     }
 
-    @Test(expectedExceptions = AuthorizationException.class,
+    @Test(expectedExceptions = JwtVerificationException.class,
         expectedExceptionsMessageRegExp = "JWT has expired")
     public void testExpiredTime() throws JOSEException {
         String header = "Bearer " + jws(

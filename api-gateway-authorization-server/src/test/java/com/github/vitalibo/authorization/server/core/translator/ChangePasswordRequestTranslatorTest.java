@@ -1,12 +1,13 @@
 package com.github.vitalibo.authorization.server.core.translator;
 
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordRequest;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 import org.apache.http.HttpHeaders;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 public class ChangePasswordRequestTranslatorTest {
 
@@ -35,8 +36,8 @@ public class ChangePasswordRequestTranslatorTest {
 
     private static ProxyRequest makeProxyRequest(String body) {
         ProxyRequest request = new ProxyRequest();
-        request.setHeaders(Collections.singletonMap(
-            HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=UTF-8"));
+        request.setHeaders(new HashMap<>(Collections.singletonMap(
+            HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=UTF-8")));
         request.setBody(body);
         return request;
     }

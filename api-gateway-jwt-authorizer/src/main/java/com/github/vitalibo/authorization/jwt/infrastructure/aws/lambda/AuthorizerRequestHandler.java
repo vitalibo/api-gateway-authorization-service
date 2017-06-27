@@ -3,9 +3,9 @@ package com.github.vitalibo.authorization.jwt.infrastructure.aws.lambda;
 import com.amazonaws.auth.policy.Policy;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.github.vitalibo.authorization.jwt.core.AuthorizationException;
 import com.github.vitalibo.authorization.jwt.core.Claims;
 import com.github.vitalibo.authorization.jwt.core.Jwt;
+import com.github.vitalibo.authorization.jwt.core.JwtVerificationException;
 import com.github.vitalibo.authorization.jwt.core.PolicyRepository;
 import com.github.vitalibo.authorization.jwt.infrastructure.aws.Factory;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.AuthorizerRequest;
@@ -41,7 +41,7 @@ public class AuthorizerRequestHandler implements RequestHandler<AuthorizerReques
                 .withPolicyDocument(policy)
                 .build();
 
-        } catch (AuthorizationException e) {
+        } catch (JwtVerificationException e) {
             // TODO return 401 Unauthorized response
             return null;
         } catch (Exception e) {

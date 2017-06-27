@@ -7,7 +7,7 @@ import com.github.vitalibo.authorization.server.core.ValidationRules;
 import com.github.vitalibo.authorization.server.core.facade.ChangePasswordFacade;
 import com.github.vitalibo.authorization.server.core.facade.ClientCredentialsFacade;
 import com.github.vitalibo.authorization.server.infrastructure.aws.cognito.CognitoUserPool;
-import com.github.vitalibo.authorization.shared.core.ErrorState;
+import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import lombok.Getter;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;

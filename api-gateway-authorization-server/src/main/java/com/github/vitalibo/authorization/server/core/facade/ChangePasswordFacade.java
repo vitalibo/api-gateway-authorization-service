@@ -6,9 +6,10 @@ import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordRequest;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordResponse;
 import com.github.vitalibo.authorization.server.core.translator.ChangePasswordRequestTranslator;
-import com.github.vitalibo.authorization.shared.core.ErrorState;
 import com.github.vitalibo.authorization.shared.core.Principal;
-import com.github.vitalibo.authorization.shared.core.Rule;
+import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
+import com.github.vitalibo.authorization.shared.core.validation.Rule;
+import com.github.vitalibo.authorization.shared.core.validation.ValidationException;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class ChangePasswordFacade implements Facade {
         if ("POST".equals(request.getHttpMethod())) {
             preRules.forEach(rule -> rule.accept(request, errorState));
             if (errorState.hasErrors()) {
-                throw errorState;
+                throw new ValidationException(errorState);
             }
 
             ChangePasswordResponse response = process(
@@ -60,7 +61,7 @@ public class ChangePasswordFacade implements Facade {
     ChangePasswordResponse process(ChangePasswordRequest request) {
         postRules.forEach(rule -> rule.accept(request, errorState));
         if (errorState.hasErrors()) {
-            throw errorState;
+            throw new ValidationException(errorState);
         }
 
         ChangePasswordResponse response = new ChangePasswordResponse();

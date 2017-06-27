@@ -5,9 +5,9 @@ import com.amazonaws.auth.policy.Resource;
 import com.amazonaws.auth.policy.Statement;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
-import com.github.vitalibo.authorization.jwt.core.AuthorizationException;
 import com.github.vitalibo.authorization.jwt.core.Claims;
 import com.github.vitalibo.authorization.jwt.core.Jwt;
+import com.github.vitalibo.authorization.jwt.core.JwtVerificationException;
 import com.github.vitalibo.authorization.jwt.core.PolicyRepository;
 import com.github.vitalibo.authorization.jwt.infrastructure.aws.Factory;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.AuthorizerRequest;
@@ -44,7 +44,7 @@ public class AuthorizerRequestHandlerTest {
 
     @Test
     public void testUnauthorizedRequest() {
-        Mockito.when(mockJwt.verify(Mockito.anyString())).thenThrow(AuthorizationException.class);
+        Mockito.when(mockJwt.verify(Mockito.anyString())).thenThrow(JwtVerificationException.class);
         AuthorizerRequest request = makeAuthorizerRequest();
 
         AuthorizerResponse actual = handler.handleRequest(request, mockContext);

@@ -6,8 +6,8 @@ import com.github.vitalibo.authorization.server.core.Facade;
 import com.github.vitalibo.authorization.server.core.Route;
 import com.github.vitalibo.authorization.server.core.Router;
 import com.github.vitalibo.authorization.server.infrastructure.aws.Factory;
-import com.github.vitalibo.authorization.shared.core.ErrorState;
-import com.github.vitalibo.authorization.shared.core.HttpError;
+import com.github.vitalibo.authorization.shared.core.validation.ValidationException;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyErrorResponse;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequestTranslator;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
@@ -44,7 +44,7 @@ public class ProxyRequestHandler implements RequestHandler<ProxyRequest, ProxyRe
                 break;
 
             case NOT_FOUND:
-                return new HttpError.Builder()
+                return new ProxyErrorResponse.Builder()
                     .withStatusCode(HttpStatus.SC_NOT_FOUND)
                     .withRequestId(context.getAwsRequestId())
                     .build()
@@ -56,10 +56,10 @@ public class ProxyRequestHandler implements RequestHandler<ProxyRequest, ProxyRe
 
         try {
             return facade.process(request);
-        } catch (ErrorState errorState) {
-            return new HttpError.Builder()
+        } catch (ValidationException e) {
+            return new ProxyErrorResponse.Builder()
                 .withStatusCode(HttpStatus.SC_BAD_REQUEST)
-                .withErrorState(errorState)
+                .withErrorState(e.getErrorState())
                 .withRequestId(context.getAwsRequestId())
                 .build()
                 .asProxyResponse();

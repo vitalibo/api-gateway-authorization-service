@@ -1,21 +1,21 @@
-package com.github.vitalibo.authorization.shared.core;
+package com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy;
 
 import com.amazonaws.util.json.Jackson;
 import com.github.vitalibo.authorization.shared.TestHelper;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
+import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import org.apache.http.HttpStatus;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
-public class HttpErrorTest {
+public class ProxyErrorResponseTest {
 
     @Test
     public void testBadRequest() {
         ErrorState errorState = new ErrorState();
         errorState.put("key", Arrays.asList("foo", "bar"));
-        HttpError error = new HttpError.Builder()
+        ProxyErrorResponse error = new ProxyErrorResponse.Builder()
             .withStatusCode(HttpStatus.SC_BAD_REQUEST)
             .withErrorState(errorState)
             .withRequestId("aq1sw2de3fr4gt5hy6ju7ki8lo9p0")
@@ -29,7 +29,7 @@ public class HttpErrorTest {
 
     @Test
     public void testNotFound() {
-        HttpError error = new HttpError.Builder()
+        ProxyErrorResponse error = new ProxyErrorResponse.Builder()
             .withStatusCode(HttpStatus.SC_NOT_FOUND)
             .withRequestId("aq1sw2de3fr4gt5hy6ju7ki8lo9p0")
             .build();
@@ -42,14 +42,14 @@ public class HttpErrorTest {
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testEmptyError() {
-        new HttpError.Builder().build();
+        new ProxyErrorResponse.Builder().build();
     }
 
     @Test
     public void testAsProxyResponse() {
         ErrorState errorState = new ErrorState();
         errorState.put("key", Arrays.asList("foo", "bar"));
-        ProxyResponse response = new HttpError.Builder()
+        ProxyResponse response = new ProxyErrorResponse.Builder()
             .withStatusCode(HttpStatus.SC_BAD_REQUEST)
             .withErrorState(errorState)
             .withRequestId("aq1sw2de3fr4gt5hy6ju7ki8lo9p0")

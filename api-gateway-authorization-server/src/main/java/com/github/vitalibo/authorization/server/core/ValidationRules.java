@@ -3,7 +3,9 @@ package com.github.vitalibo.authorization.server.core;
 import com.amazonaws.util.StringUtils;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordRequest;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
-import com.github.vitalibo.authorization.shared.core.ErrorState;
+import com.github.vitalibo.authorization.shared.core.http.BasicAuthenticationException;
+import com.github.vitalibo.authorization.shared.core.http.BasicScheme;
+import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 
 public final class ValidationRules {
@@ -28,8 +30,8 @@ public final class ValidationRules {
         }
 
         try {
-            BasicAuthenticationHeader.decode(authorization);
-        } catch (IllegalArgumentException e) {
+            BasicScheme.decode(request.getHeaders());
+        } catch (BasicAuthenticationException e) {
             errorState.addError(
                 "Authorization",
                 "Basic Authentication header has incorrect format");

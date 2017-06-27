@@ -1,6 +1,7 @@
 package com.github.vitalibo.authorization.basic.core;
 
 import com.github.vitalibo.authorization.shared.core.Principal;
+import com.github.vitalibo.authorization.shared.core.http.BasicAuthenticationException;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -33,7 +34,7 @@ public class HttpBasicAuthenticatorTest {
 
     @Test
     public void testAuth() {
-        Principal actual = basicAuthenticator.auth(
+        Principal actual = basicAuthenticator.authenticate(
             "Basic aHR0cHdhdGNoOmY=");
 
         Assert.assertNotNull(actual);
@@ -51,9 +52,9 @@ public class HttpBasicAuthenticatorTest {
         };
     }
 
-    @Test(dataProvider = "samples", expectedExceptions = IllegalArgumentException.class)
+    @Test(dataProvider = "samples", expectedExceptions = BasicAuthenticationException.class)
     public void testFailAuth(String header) {
-        Principal actual = basicAuthenticator.auth(header);
+        Principal actual = basicAuthenticator.authenticate(header);
 
         Assert.assertNull(actual);
     }
@@ -64,7 +65,7 @@ public class HttpBasicAuthenticatorTest {
         Mockito.when(mockUserPool.verify("httpwatch", "f"))
             .thenThrow(RuntimeException.class);
 
-        Principal actual = basicAuthenticator.auth("Basic aHR0cHdhdGNoOmY=");
+        Principal actual = basicAuthenticator.authenticate("Basic aHR0cHdhdGNoOmY=");
 
         Assert.assertNull(actual);
     }

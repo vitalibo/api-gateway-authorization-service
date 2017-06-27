@@ -1,8 +1,11 @@
 package com.github.vitalibo.authorization.server.core;
 
-public class UserPoolException extends Exception {
+import com.github.vitalibo.authorization.shared.core.AuthorizationServiceException;
+
+public class UserPoolException extends AuthorizationServiceException {
 
     public UserPoolException() {
+        super();
     }
 
     public UserPoolException(String message) {
@@ -16,4 +19,5 @@ public class UserPoolException extends Exception {
     public UserPoolException(Throwable cause) {
         super(cause);
     }
+
 }

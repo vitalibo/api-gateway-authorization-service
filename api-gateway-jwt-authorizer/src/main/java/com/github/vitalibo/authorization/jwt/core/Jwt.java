@@ -30,20 +30,20 @@ public class Jwt {
     public Claims verify(String header) {
         Matcher matcher = AUTHORIZATION_HEADER_PATTERN.matcher(header);
         if (!matcher.matches()) {
-            throw new AuthorizationException("Incorrect header format");
+            throw new JwtVerificationException("Incorrect header format");
         }
 
         try {
             return checkJWT(matcher.group("jwt"));
         } catch (ParseException | KeySourceException e) {
-            throw new AuthorizationException("JWT couldn't be parsed");
+            throw new JwtVerificationException("JWT couldn't be parsed", e);
         }
     }
 
     private Claims checkJWT(String authorization) throws ParseException, KeySourceException {
         SignedJWT jwt = SignedJWT.parse(authorization);
         if (!checkSignature(jwt)) {
-            throw new AuthorizationException("JWS object didn't pass the verification");
+            throw new JwtVerificationException("JWS object didn't pass the verification");
         }
 
         JWTClaimsSet claimsSet = jwt.getJWTClaimsSet();
@@ -64,14 +64,14 @@ public class Jwt {
             return !keys.isEmpty()
                 && jwt.verify(new RSASSAVerifier((RSAKey) keys.get(0)));
         } catch (JOSEException e) {
-            throw new AuthorizationException("JWS object couldn't be verified");
+            throw new JwtVerificationException("JWS object couldn't be verified", e);
         }
     }
 
     private void checkExpirationTime(JWTClaimsSet claimsSet) throws ParseException {
         final Date expirationTime = claimsSet.getExpirationTime();
         if (expirationTime == null || new Date().after(expirationTime)) {
-            throw new AuthorizationException("JWT has expired");
+            throw new JwtVerificationException("JWT has expired");
         }
     }
 

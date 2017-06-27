@@ -2,19 +2,20 @@ package com.github.vitalibo.authorization.server.core.translator;
 
 import com.amazonaws.util.StringUtils;
 import com.amazonaws.util.json.Jackson;
-import com.github.vitalibo.authorization.server.core.BasicAuthenticationHeader;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
-import com.github.vitalibo.authorization.shared.core.FormURLEncoded;
+import com.github.vitalibo.authorization.shared.core.http.BasicAuthenticationException;
+import com.github.vitalibo.authorization.shared.core.http.BasicScheme;
+import com.github.vitalibo.authorization.shared.core.http.Credentials;
+import com.github.vitalibo.authorization.shared.core.http.FormUrlencodedScheme;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 
 public class OAuth2RequestTranslator {
 
-    public static OAuth2Request from(ProxyRequest httpRequest) {
-        final String body = FormURLEncoded.decode(
-            httpRequest.getBody(), httpRequest.getHeaders());
+    public static OAuth2Request from(ProxyRequest o) {
+        ProxyRequest proxyRequest = FormUrlencodedScheme.decode(o);
 
         OAuth2Request request = Jackson.fromJsonString(
-            StringUtils.isNullOrEmpty(body) ? "{}" : body,
+            StringUtils.isNullOrEmpty(proxyRequest.getBody()) ? "{}" : proxyRequest.getBody(),
             OAuth2Request.class);
 
         if (!StringUtils.isNullOrEmpty(request.getClientId()) &&
@@ -24,13 +25,11 @@ public class OAuth2RequestTranslator {
         }
 
         try {
-            BasicAuthenticationHeader authorization = BasicAuthenticationHeader.decode(
-                httpRequest.getHeaders()
-                    .get("Authorization"));
+            Credentials credentials = BasicScheme.decode(proxyRequest.getHeaders());
 
-            request.setClientId(authorization.getUser());
-            request.setClientSecret(authorization.getPassword());
-        } catch (IllegalArgumentException ignored) {
+            request.setClientId(credentials.getUsername());
+            request.setClientSecret(credentials.getPassword());
+        } catch (BasicAuthenticationException ignored) {
         }
 
         return request;

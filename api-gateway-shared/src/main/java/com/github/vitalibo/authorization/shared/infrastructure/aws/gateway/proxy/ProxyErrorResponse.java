@@ -1,9 +1,9 @@
-package com.github.vitalibo.authorization.shared.core;
+package com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
+import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import lombok.Data;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Data
 @JsonInclude(Include.NON_NULL)
-public class HttpError {
+public class ProxyErrorResponse {
 
     @JsonProperty(value = "status")
     private final Integer status;
@@ -58,12 +58,12 @@ public class HttpError {
             return this;
         }
 
-        public HttpError build() {
+        public ProxyErrorResponse build() {
             if (statusCode == null) {
                 throw new IllegalArgumentException("Status code can't be Null");
             }
 
-            return new HttpError(
+            return new ProxyErrorResponse(
                 statusCode,
                 HTTP_STATUS_PHRASE.getReason(
                     statusCode, Locale.ENGLISH),

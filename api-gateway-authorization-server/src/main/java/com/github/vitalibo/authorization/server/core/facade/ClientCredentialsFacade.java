@@ -6,10 +6,11 @@ import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Response;
 import com.github.vitalibo.authorization.server.core.translator.OAuth2RequestTranslator;
-import com.github.vitalibo.authorization.shared.core.ErrorState;
-import com.github.vitalibo.authorization.shared.core.HttpError;
 import com.github.vitalibo.authorization.shared.core.Principal;
-import com.github.vitalibo.authorization.shared.core.Rule;
+import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
+import com.github.vitalibo.authorization.shared.core.validation.Rule;
+import com.github.vitalibo.authorization.shared.core.validation.ValidationException;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyErrorResponse;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class ClientCredentialsFacade implements Facade {
     public ProxyResponse process(ProxyRequest request) {
         preRules.forEach(rule -> rule.accept(request, errorState));
         if (errorState.hasErrors()) {
-            throw errorState;
+            throw new ValidationException(errorState);
         }
 
         try {
@@ -46,7 +47,7 @@ public class ClientCredentialsFacade implements Facade {
         } catch (UserPoolException e) {
             ErrorState errorState = new ErrorState();
             errorState.addError("authorization", e.getMessage());
-            return new HttpError.Builder()
+            return new ProxyErrorResponse.Builder()
                 .withStatusCode(HttpStatus.SC_UNAUTHORIZED)
                 .withErrorState(errorState)
                 .build()
@@ -57,7 +58,7 @@ public class ClientCredentialsFacade implements Facade {
     OAuth2Response process(OAuth2Request request) throws UserPoolException {
         postRules.forEach(rule -> rule.accept(request, errorState));
         if (errorState.hasErrors()) {
-            throw errorState;
+            throw new ValidationException(errorState);
         }
 
         Principal principal = userPool.authenticate(

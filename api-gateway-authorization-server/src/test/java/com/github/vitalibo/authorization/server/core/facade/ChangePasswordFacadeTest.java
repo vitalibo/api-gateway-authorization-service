@@ -1,15 +1,15 @@
 package com.github.vitalibo.authorization.server.core.facade;
 
 import com.amazonaws.util.json.Jackson;
-import com.github.vitalibo.authorization.shared.core.ErrorState;
-import com.github.vitalibo.authorization.shared.core.Principal;
-import com.github.vitalibo.authorization.shared.core.Rule;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordRequest;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordResponse;
+import com.github.vitalibo.authorization.shared.core.Principal;
+import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
+import com.github.vitalibo.authorization.shared.core.validation.Rule;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.velocity.Template;
@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class ChangePasswordFacadeTest {
 
@@ -101,8 +102,8 @@ public class ChangePasswordFacadeTest {
     private static ProxyRequest makeProxyRequest() {
         ProxyRequest request = new ProxyRequest();
         request.setHttpMethod("POST");
-        request.setHeaders(Collections.singletonMap(
-            HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=UTF-8"));
+        request.setHeaders(new HashMap<>(Collections.singletonMap(
+            HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=UTF-8")));
         request.setBody("username=admin&previous_password=foo&proposed_password=bar");
         return request;
     }

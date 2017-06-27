@@ -2,8 +2,8 @@ package com.github.vitalibo.authorization.server.infrastructure.aws.cognito;
 
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.model.*;
-import com.github.vitalibo.authorization.shared.core.Principal;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
+import com.github.vitalibo.authorization.shared.core.Principal;
 import org.mockito.*;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;

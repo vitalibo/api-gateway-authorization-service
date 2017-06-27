@@ -10,6 +10,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.github.vitalibo.authorization.basic.core.HttpBasicAuthenticator;
 import com.github.vitalibo.authorization.basic.infrastructure.aws.Factory;
 import com.github.vitalibo.authorization.shared.core.Principal;
+import com.github.vitalibo.authorization.shared.core.http.BasicAuthenticationException;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.AuthorizerRequest;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.AuthorizerResponse;
 import lombok.AllArgsConstructor;
@@ -30,14 +31,14 @@ public class AuthorizerRequestHandler implements RequestHandler<AuthorizerReques
     @Override
     public AuthorizerResponse handleRequest(AuthorizerRequest request, Context context) {
         Statement.Effect effect = Statement.Effect.Deny;
-        Principal principal = new Principal();
         HttpBasicAuthenticator authenticator = factory.createHttpBasicAuthenticator();
 
+        Principal principal = new Principal();
         try {
-            principal = authenticator.auth(request.getAuthorizationToken());
+            principal = authenticator.authenticate(request.getAuthorizationToken());
 
             effect = Statement.Effect.Allow;
-        } catch (IllegalArgumentException e) {
+        } catch (BasicAuthenticationException e) {
             logger.warn("Validation error. {}", e.getMessage());
         } catch (UserNotFoundException | NotAuthorizedException e) {
             logger.warn("AWS Cognito error. {}", e.getErrorMessage());

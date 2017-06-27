@@ -1,11 +1,12 @@
 package com.github.vitalibo.authorization.server.infrastructure.aws.lambda;
 
 import com.amazonaws.services.lambda.runtime.Context;
-import com.github.vitalibo.authorization.shared.core.ErrorState;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
 import com.github.vitalibo.authorization.server.core.facade.ClientCredentialsFacade;
 import com.github.vitalibo.authorization.server.infrastructure.aws.Factory;
+import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
+import com.github.vitalibo.authorization.shared.core.validation.ValidationException;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
 import org.apache.http.HttpStatus;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -54,7 +55,7 @@ public class ProxyRequestHandlerTest {
         ErrorState errorState = new ErrorState();
         errorState.addError("key", "error message");
         Mockito.when(mockClientCredentialsFacade.process(Mockito.any()))
-            .thenThrow(errorState);
+            .thenThrow(new ValidationException(errorState));
 
         ProxyResponse actual = lambda.handleRequest(proxyRequest, mockContext);
 

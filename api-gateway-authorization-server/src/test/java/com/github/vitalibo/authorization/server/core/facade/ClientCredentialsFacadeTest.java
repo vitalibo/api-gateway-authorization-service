@@ -1,15 +1,15 @@
 package com.github.vitalibo.authorization.server.core.facade;
 
 import com.amazonaws.util.json.Jackson;
-import com.github.vitalibo.authorization.shared.core.ErrorState;
-import com.github.vitalibo.authorization.shared.core.Principal;
-import com.github.vitalibo.authorization.shared.core.Rule;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Response;
+import com.github.vitalibo.authorization.shared.core.Principal;
+import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
+import com.github.vitalibo.authorization.shared.core.validation.Rule;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
 import org.apache.http.HttpStatus;
 import org.mockito.Mock;
 import org.mockito.Mockito;

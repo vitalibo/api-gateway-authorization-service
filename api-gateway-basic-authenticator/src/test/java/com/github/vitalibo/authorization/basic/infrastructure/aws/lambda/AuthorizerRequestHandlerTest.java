@@ -6,6 +6,7 @@ import com.amazonaws.util.json.Jackson;
 import com.github.vitalibo.authorization.basic.core.HttpBasicAuthenticator;
 import com.github.vitalibo.authorization.basic.infrastructure.aws.Factory;
 import com.github.vitalibo.authorization.shared.core.Principal;
+import com.github.vitalibo.authorization.shared.core.http.BasicAuthenticationException;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.AuthorizerRequest;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.AuthorizerResponse;
 import org.mockito.Mock;
@@ -39,7 +40,7 @@ public class AuthorizerRequestHandlerTest {
 
     @Test
     public void testAuthentication() {
-        Mockito.when(mockHttpBasicAuthenticator.auth(Mockito.any()))
+        Mockito.when(mockHttpBasicAuthenticator.authenticate(Mockito.any()))
             .thenReturn(principal);
 
         AuthorizerResponse actual = lambda.handleRequest(request, mockContext);
@@ -52,7 +53,7 @@ public class AuthorizerRequestHandlerTest {
 
     @Test
     public void testUnauthorized() {
-        Mockito.when(mockHttpBasicAuthenticator.auth(Mockito.any()))
+        Mockito.when(mockHttpBasicAuthenticator.authenticate(Mockito.any()))
             .thenThrow(NotAuthorizedException.class);
 
         AuthorizerResponse actual = lambda.handleRequest(request, mockContext);
@@ -65,8 +66,8 @@ public class AuthorizerRequestHandlerTest {
 
     @Test
     public void testValidationError() {
-        Mockito.when(mockHttpBasicAuthenticator.auth(Mockito.any()))
-            .thenThrow(IllegalArgumentException.class);
+        Mockito.when(mockHttpBasicAuthenticator.authenticate(Mockito.any()))
+            .thenThrow(BasicAuthenticationException.class);
 
         AuthorizerResponse actual = lambda.handleRequest(request, mockContext);
 
@@ -78,7 +79,7 @@ public class AuthorizerRequestHandlerTest {
 
     @Test(expectedExceptions = Exception.class)
     public void testInternalServerError() {
-        Mockito.when(mockHttpBasicAuthenticator.auth(Mockito.any()))
+        Mockito.when(mockHttpBasicAuthenticator.authenticate(Mockito.any()))
             .thenThrow(Exception.class);
 
         lambda.handleRequest(request, mockContext);
