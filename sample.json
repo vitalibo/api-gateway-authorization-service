@@ -1,0 +1,347 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "",
+  "Parameters": {
+    "UserName": {
+      "Type": "String",
+      "Description": "User name"
+    }
+  },
+  "Resources": {
+    "ApiGateway": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "${UserName}-mock-api"
+        }
+      }
+    },
+    "FooResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGateway",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "foo",
+        "RestApiId": {
+          "Ref": "ApiGateway"
+        }
+      },
+      "DependsOn": "ApiGateway"
+    },
+    "BarResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGateway",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "bar",
+        "RestApiId": {
+          "Ref": "ApiGateway"
+        }
+      },
+      "DependsOn": "ApiGateway"
+    },
+    "FooAnyMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "JwtAuthorizer"
+        },
+        "HttpMethod": "ANY",
+        "ResourceId": {
+          "Ref": "FooResource"
+        },
+        "RestApiId": {
+          "Ref": "ApiGateway"
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": 200,
+            "ResponseModels": {
+              "application/json": "Empty"
+            }
+          }
+        ],
+        "Integration": {
+          "Type": "MOCK",
+          "PassthroughBehavior": "WHEN_NO_TEMPLATES",
+          "RequestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "IntegrationResponses": [
+            {
+              "StatusCode": 200,
+              "ResponseTemplates": {
+                "application/json": "{ \"Status\": \"OK\" }"
+              }
+            }
+          ]
+        }
+      },
+      "DependsOn": "FooResource"
+    },
+    "BarAnyMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "BasicAuthenticator"
+        },
+        "HttpMethod": "ANY",
+        "ResourceId": {
+          "Ref": "BarResource"
+        },
+        "RestApiId": {
+          "Ref": "ApiGateway"
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": 200,
+            "ResponseModels": {
+              "application/json": "Empty"
+            }
+          }
+        ],
+        "Integration": {
+          "Type": "MOCK",
+          "PassthroughBehavior": "WHEN_NO_TEMPLATES",
+          "RequestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "IntegrationResponses": [
+            {
+              "StatusCode": 200,
+              "ResponseTemplates": {
+                "application/json": "{ \"Status\": \"OK\" }"
+              }
+            }
+          ]
+        }
+      },
+      "DependsOn": "BarResource"
+    },
+    "ApiDeployment": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "ApiGateway"
+        }
+      },
+      "DependsOn": [
+        "FooAnyMethod",
+        "BarAnyMethod"
+      ]
+    },
+    "ApiStage": {
+      "Type": "AWS::ApiGateway::Stage",
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "ApiDeployment"
+        },
+        "RestApiId": {
+          "Ref": "ApiGateway"
+        },
+        "StageName": "v2"
+      },
+      "DependsOn": "ApiDeployment"
+    },
+    "JwtAuthorizer": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+        "AuthorizerCredentials": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${UserName}-authorizer-execution-role"
+        },
+        "AuthorizerResultTtlInSeconds": 300,
+        "AuthorizerUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":lambda:path/2015-03-31/functions/arn:aws:lambda:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":function:",
+              {
+                "Ref": "UserName"
+              },
+              "-jwt-authorizer/invocations"
+            ]
+          ]
+        },
+        "IdentitySource": "method.request.header.Authorization",
+        "IdentityValidationExpression": "^Bearer [-0-9a-zA-z\\.]*$",
+        "Name": "jwt-authorizer",
+        "Type": "TOKEN",
+        "RestApiId": {
+          "Ref": "ApiGateway"
+        }
+      }
+    },
+    "BasicAuthenticator": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+        "AuthorizerCredentials": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${UserName}-authorizer-execution-role"
+        },
+        "AuthorizerResultTtlInSeconds": 300,
+        "AuthorizerUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:apigateway:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":lambda:path/2015-03-31/functions/arn:aws:lambda:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":function:",
+              {
+                "Ref": "UserName"
+              },
+              "-basic-authenticator/invocations"
+            ]
+          ]
+        },
+        "IdentitySource": "method.request.header.Authorization",
+        "IdentityValidationExpression": "^Basic (?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+        "Name": "basic-authenticator",
+        "Type": "TOKEN",
+        "RestApiId": {
+          "Ref": "ApiGateway"
+        }
+      }
+    },
+    "ReadUser": {
+      "Type": "AWS::Cognito::UserPoolUser",
+      "Properties": {
+        "UserAttributes": [
+          {
+            "Name": "email",
+            "Value": "boyarsky.vitaliy@mail.ru"
+          }
+        ],
+        "Username": "vitalik",
+        "UserPoolId": {
+          "Fn::ImportValue": {
+            "Fn::Sub": "${UserName}-UserPoolId"
+          }
+        }
+      }
+    },
+    "ApiGatewayReadGroup": {
+      "Type": "AWS::Cognito::UserPoolGroup",
+      "Properties": {
+        "Description": "This group allow invoke AWS Api Gateway Read access for any resources",
+        "GroupName": "ApiGatewayReadAccess",
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "ApiReadAccessRole",
+            "Arn"
+          ]
+        },
+        "UserPoolId": {
+          "Fn::ImportValue": {
+            "Fn::Sub": "${UserName}-UserPoolId"
+          }
+        }
+      }
+    },
+    "UserToGroupAttachment": {
+      "Type": "AWS::Cognito::UserPoolUserToGroupAttachment",
+      "Properties": {
+        "GroupName": {
+          "Ref": "ApiGatewayReadGroup"
+        },
+        "Username": {
+          "Ref": "ReadUser"
+        },
+        "UserPoolId": {
+          "Fn::ImportValue": {
+            "Fn::Sub": "${UserName}-UserPoolId"
+          }
+        }
+      }
+    },
+    "ApiReadAccessRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "Path": "/",
+        "RoleName": {
+          "Fn::Sub": "${UserName}-api-gateway-read-access-role"
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "apigateway.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "Inline",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "execute-api:Invoke"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/GET/*"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/HEAD/*"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/OPTIONS/*"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "ServiceEndpoint": {
+      "Value": {
+        "Fn::Sub": "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${ApiStage}"
+      }
+    }
+  }
+}
