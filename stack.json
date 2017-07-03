@@ -1,19 +1,291 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "The AWS CloudFormation template of infrastructure for Authorization Service",
+  "Description": "",
   "Parameters": {
     "UserName": {
       "Type": "String",
-      "Default": "authorization-service",
       "Description": "User name"
     },
     "DeploymentBucket": {
       "Type": "String",
-      "Default": "com.github.vitalibo.develop",
-      "Description": "The S3 bucket name for Lambda sources"
+      "Description": "S3 bucket name where contains compiled lambdas"
     }
   },
   "Resources": {
+    "ServerLambdaLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${ServerLambda}"
+        },
+        "RetentionInDays": 3
+      }
+    },
+    "ServerLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DeploymentBucket"
+          },
+          "S3Key": {
+            "Fn::Sub": "${UserName}/api-gateway-authorization-server-1.0-SNAPSHOT.jar"
+          }
+        },
+        "Description": {
+          "Fn::Sub": "Server lambda of ${UserName}"
+        },
+        "Environment": {
+          "Variables": {
+            "AWS_COGNITO_CLIENT_ID": {
+              "Ref": "AuthorizationServerApp"
+            },
+            "AWS_COGNITO_USER_POOL_ID": {
+              "Ref": "UserPool"
+            }
+          }
+        },
+        "FunctionName": {
+          "Fn::Sub": "${UserName}-server"
+        },
+        "Handler": "com.github.vitalibo.authorization.server.infrastructure.aws.lambda.ProxyRequestHandler",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${UserName}-server-lambda-role"
+        },
+        "Runtime": "java8",
+        "Timeout": 30,
+        "Tags": [
+          {
+            "Key": "ServiceName",
+            "Value": {
+              "Ref": "UserName"
+            }
+          }
+        ]
+      }
+    },
+    "ServerLambdaPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "ServerLambda",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ServerRestApi}/*/*"
+        }
+      }
+    },
+    "BasicAuthenticatorLambdaLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${BasicAuthenticatorLambda}"
+        },
+        "RetentionInDays": 3
+      }
+    },
+    "BasicAuthenticatorLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DeploymentBucket"
+          },
+          "S3Key": {
+            "Fn::Sub": "${UserName}/api-gateway-basic-authenticator-1.0-SNAPSHOT.jar"
+          }
+        },
+        "Description": {
+          "Fn::Sub": "Basic Authenticator lambda of ${UserName}"
+        },
+        "Environment": {
+          "Variables": {
+            "AWS_COGNITO_CLIENT_ID": {
+              "Ref": "AuthorizationServerApp"
+            },
+            "AWS_COGNITO_USER_POOL_ID": {
+              "Ref": "UserPool"
+            }
+          }
+        },
+        "FunctionName": {
+          "Fn::Sub": "${UserName}-basic-authenticator"
+        },
+        "Handler": "com.github.vitalibo.authorization.basic.infrastructure.aws.lambda.AuthorizerRequestHandler",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${UserName}-basic-authenticator-lambda-role"
+        },
+        "Runtime": "java8",
+        "Timeout": 30,
+        "Tags": [
+          {
+            "Key": "ServiceName",
+            "Value": {
+              "Ref": "UserName"
+            }
+          }
+        ]
+      }
+    },
+    "JwtAuthorizerLambdaLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${JwtAuthorizerLambda}"
+        },
+        "RetentionInDays": 3
+      }
+    },
+    "JwtAuthorizerLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DeploymentBucket"
+          },
+          "S3Key": {
+            "Fn::Sub": "${UserName}/api-gateway-jwt-authorizer-1.0-SNAPSHOT.jar"
+          }
+        },
+        "Description": {
+          "Fn::Sub": "JWT Authorizer lambda of ${UserName}"
+        },
+        "Environment": {
+          "Variables": {
+            "AWS_COGNITO_USER_POOL_ID": {
+              "Ref": "UserPool"
+            }
+          }
+        },
+        "FunctionName": {
+          "Fn::Sub": "${UserName}-jwt-authorizer"
+        },
+        "Handler": "com.github.vitalibo.authorization.jwt.infrastructure.aws.lambda.AuthorizerRequestHandler",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${UserName}-jwt-authorizer-lambda-role"
+        },
+        "Runtime": "java8",
+        "Timeout": 30,
+        "Tags": [
+          {
+            "Key": "ServiceName",
+            "Value": {
+              "Ref": "UserName"
+            }
+          }
+        ]
+      }
+    },
+    "JwtAuthorizerPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "JwtAuthorizerLambda",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*"
+        }
+      }
+    },
+    "ServerRestApi": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "${UserName}-server"
+        },
+        "Description": {
+          "Fn::Sub": "Server Rest API of Authorization Service"
+        }
+      }
+    },
+    "ApiResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ServerRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "ServerRestApi"
+        }
+      }
+    },
+    "ApiProxyMethod": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "ServerLambda",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "ResourceId": {
+          "Ref": "ApiResource"
+        },
+        "RestApiId": {
+          "Ref": "ServerRestApi"
+        }
+      }
+    },
+    "ApiDeployment": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "ServerRestApi"
+        }
+      },
+      "DependsOn": [
+        "ApiProxyMethod"
+      ]
+    },
+    "ApiStage": {
+      "Type": "AWS::ApiGateway::Stage",
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "ApiDeployment"
+        },
+        "RestApiId": {
+          "Ref": "ServerRestApi"
+        },
+        "StageName": "v1"
+      },
+      "DependsOn": "ApiDeployment"
+    },
     "UserPool": {
       "Type": "AWS::Cognito::UserPool",
       "Properties": {
@@ -89,63 +361,14 @@
     "ApiGatewayGroup": {
       "Type": "AWS::Cognito::UserPoolGroup",
       "Properties": {
-        "Description": "This group allow execute AWS Api Gateway any resources",
+        "Description": "This group allow execdute AWS Api Gateway any resources",
         "GroupName": "ApiGatewayFullAccess",
         "RoleArn": {
-          "Fn::GetAtt": [
-            "ApiGatewayRole",
-            "Arn"
-          ]
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${UserName}-api-gateway-full-access-role"
         },
         "UserPoolId": {
           "Ref": "UserPool"
         }
-      }
-    },
-    "ApiGatewayRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "Path": "/",
-        "RoleName": {
-          "Fn::Sub": "${UserName}-api-gateway-role"
-        },
-        "AssumeRolePolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "apigateway.amazonaws.com"
-                ]
-              },
-              "Action": [
-                "sts:AssumeRole"
-              ]
-            }
-          ]
-        },
-        "Policies": [
-          {
-            "PolicyName": "Inline",
-            "PolicyDocument": {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Action": [
-                    "execute-api:Invoke"
-                  ],
-                  "Resource": [
-                    {
-                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*"
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        ]
       }
     },
     "UserToGroupAttachment": {
@@ -167,6 +390,11 @@
     "UserPoolId": {
       "Value": {
         "Ref": "UserPool"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${UserName}-UserPoolId"
+        }
       }
     },
     "UserPoolArn": {
@@ -175,6 +403,11 @@
           "UserPool",
           "Arn"
         ]
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${UserName}-UserPoolArn"
+        }
       }
     },
     "ClientId": {

@@ -22,8 +22,8 @@ public class Factory {
 
     Factory(AmazonFactory amazonFactory, Map<String, String> conf) {
         this.amazonFactory = amazonFactory;
-        this.userPoolId = conf.get("COGNITO_USER_POOL_ID");
-        this.clientId = conf.get("COGNITO_CLIENT_ID");
+        this.userPoolId = conf.get("AWS_COGNITO_USER_POOL_ID");
+        this.clientId = conf.get("AWS_COGNITO_CLIENT_ID");
     }
 
     public HttpBasicAuthenticator createHttpBasicAuthenticator() {
