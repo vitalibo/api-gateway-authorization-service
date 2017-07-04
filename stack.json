@@ -1,14 +1,19 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "",
+  "Description": "This AWS CloudFormation template create infrastructure of Authorization Service",
   "Parameters": {
     "UserName": {
       "Type": "String",
+      "Default": "authorization-service",
       "Description": "User name"
     },
     "DeploymentBucket": {
       "Type": "String",
       "Description": "S3 bucket name where contains compiled lambdas"
+    },
+    "Build": {
+      "Type": "String",
+      "Description": "Build version of compiled lambdas"
     }
   },
   "Resources": {
@@ -29,7 +34,7 @@
             "Ref": "DeploymentBucket"
           },
           "S3Key": {
-            "Fn::Sub": "${UserName}/authorization-service-server-1.0-SNAPSHOT.jar"
+            "Fn::Sub": "${UserName}/${Build}/authorization-service-server-1.0-SNAPSHOT.jar"
           }
         },
         "Description": {
@@ -98,7 +103,7 @@
             "Ref": "DeploymentBucket"
           },
           "S3Key": {
-            "Fn::Sub": "${UserName}/authorization-service-basic-authenticator-1.0-SNAPSHOT.jar"
+            "Fn::Sub": "${UserName}/${Build}/authorization-service-basic-authenticator-1.0-SNAPSHOT.jar"
           }
         },
         "Description": {
@@ -151,7 +156,7 @@
             "Ref": "DeploymentBucket"
           },
           "S3Key": {
-            "Fn::Sub": "${UserName}/authorization-service-jwt-authorizer-1.0-SNAPSHOT.jar"
+            "Fn::Sub": "${UserName}/${Build}/authorization-service-jwt-authorizer-1.0-SNAPSHOT.jar"
           }
         },
         "Description": {
