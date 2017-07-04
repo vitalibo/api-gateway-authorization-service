@@ -10,10 +10,10 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>api-gateway-shared</module>
-        <module>api-gateway-basic-authenticator</module>
-        <module>api-gateway-jwt-authorizer</module>
-        <module>api-gateway-authorization-server</module>
+        <module>authorization-service-shared</module>
+        <module>authorization-service-basic-authenticator</module>
+        <module>authorization-service-jwt-authorizer</module>
+        <module>authorization-service-server</module>
     </modules>
 
 </project>

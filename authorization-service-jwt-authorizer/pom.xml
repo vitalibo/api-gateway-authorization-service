@@ -6,12 +6,12 @@
 
     <parent>
         <groupId>com.github.vitalibo</groupId>
-        <artifactId>api-gateway-parent-pom</artifactId>
+        <artifactId>authorization-service-parent-pom</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
 
-    <artifactId>api-gateway-jwt-authorizer</artifactId>
+    <artifactId>authorization-service-jwt-authorizer</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.vitalibo</groupId>
-            <artifactId>api-gateway-shared</artifactId>
+            <artifactId>authorization-service-shared</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -22,23 +22,23 @@ check_result() {
 
 function copy() {
   SERVICE_NAME=$1
-  aws s3 cp "api-gateway-${SERVICE_NAME}/target/api-gateway-${SERVICE_NAME}-1.0-SNAPSHOT.jar" "s3://${S3_BUCKET}/${USER}/"
+  aws s3 cp "authorization-service-${SERVICE_NAME}/target/authorization-service-${SERVICE_NAME}-1.0-SNAPSHOT.jar" "s3://${S3_BUCKET}/${USER}/" --profile my
   check_result
 }
 
 function update_lambda() {
-  aws lambda update-function-code --function-name "$1" \
-    --s3-bucket "${S3_BUCKET}" --s3-key "${USER}/api-gateway-$2-1.0-SNAPSHOT.jar" 2>&1 >/dev/null
+  aws lambda update-function-code --function-name "${USER}-$1" \
+    --s3-bucket "${S3_BUCKET}" --s3-key "${USER}/authorization-service-$1-1.0-SNAPSHOT.jar" --profile my 2>&1 >/dev/null
   check_result
 }
 
-copy 'authorization-server'
+copy 'server'
 copy 'basic-authenticator'
 copy 'jwt-authorizer'
 
 aws cloudformation deploy --template-file 'stack.json' --stack-name ${STACK_NAME} \
-  --parameter-overrides UserName=${USER} DeploymentBucket=${S3_BUCKET}
+  --parameter-overrides UserName=${USER} DeploymentBucket=${S3_BUCKET} --profile my
 
-update_lambda "${USER}-server" 'authorization-server'
-update_lambda "${USER}-basic-authenticator" 'basic-authenticator'
-update_lambda "${USER}-jwt-authorizer" 'jwt-authorizer'
+update_lambda 'server'
+update_lambda 'basic-authenticator'
+update_lambda 'jwt-authorizer'

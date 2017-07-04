@@ -29,7 +29,7 @@
             "Ref": "DeploymentBucket"
           },
           "S3Key": {
-            "Fn::Sub": "${UserName}/api-gateway-authorization-server-1.0-SNAPSHOT.jar"
+            "Fn::Sub": "${UserName}/authorization-service-server-1.0-SNAPSHOT.jar"
           }
         },
         "Description": {
@@ -98,7 +98,7 @@
             "Ref": "DeploymentBucket"
           },
           "S3Key": {
-            "Fn::Sub": "${UserName}/api-gateway-basic-authenticator-1.0-SNAPSHOT.jar"
+            "Fn::Sub": "${UserName}/authorization-service-basic-authenticator-1.0-SNAPSHOT.jar"
           }
         },
         "Description": {
@@ -151,7 +151,7 @@
             "Ref": "DeploymentBucket"
           },
           "S3Key": {
-            "Fn::Sub": "${UserName}/api-gateway-jwt-authorizer-1.0-SNAPSHOT.jar"
+            "Fn::Sub": "${UserName}/authorization-service-jwt-authorizer-1.0-SNAPSHOT.jar"
           }
         },
         "Description": {
