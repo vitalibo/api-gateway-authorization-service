@@ -1,0 +1,106 @@
+{
+  "info": {
+    "name": "Authorization Service Integration Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Basic Authentication: Anonymous user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 401\"] = responseCode.code === 401;",
+              "",
+              "tests[\"Response body has Unauthorized message\"] = JSON.parse(responseBody).message === 'Unauthorized';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{MockService}}/bar",
+        "method": "GET"
+      }
+    },
+    {
+      "name": "Basic Authentication: Use Bearer authentication scheme",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 401\"] = responseCode.code === 401;",
+              "",
+              "tests[\"Response body has Unauthorized message\"] = JSON.parse(responseBody).message === 'Unauthorized';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{MockService}}/bar",
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Basic Authentication: Incorrect user name or password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 403\"] = responseCode.code === 403;",
+              "",
+              "tests[\"Response body has Forbidden message\"] = JSON.parse(responseBody).Message === 'User is not authorized to access this resource';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{MockService}}/bar",
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Basic Zm9vOmJhcg=="
+          }
+        ]
+      }
+    },
+    {
+      "name": "Basic Authentication: Successfully passed authentication",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "tests[\"Mock service response is OK\"] = JSON.parse(responseBody).Status === 'OK';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{MockService}}/bar",
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Basic YWRtaW46V2VsY29tZTIwMTch"
+          }
+        ]
+      }
+    }
+  ]
+}

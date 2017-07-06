@@ -419,6 +419,11 @@
       "Value": {
         "Ref": "AuthorizationServerApp"
       }
+    },
+    "ServiceEndpoint": {
+      "Value": {
+        "Fn::Sub": "https://${ServerRestApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiStage}"
+      }
     }
   }
 }
