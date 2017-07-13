@@ -42,6 +42,10 @@ public class AuthorizerResponse {
             return withContext(key, value);
         }
 
+        public Builder withContextAsNumber(String key, Long value) {
+            return withContext(key, value);
+        }
+
         public Builder withContextAsNumber(String key, Double value) {
             return withContext(key, value);
         }

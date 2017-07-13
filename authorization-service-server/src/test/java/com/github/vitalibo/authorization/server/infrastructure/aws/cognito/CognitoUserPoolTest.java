@@ -2,8 +2,8 @@ package com.github.vitalibo.authorization.server.infrastructure.aws.cognito;
 
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.model.*;
+import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
-import com.github.vitalibo.authorization.shared.core.Principal;
 import org.mockito.*;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -43,7 +43,7 @@ public class CognitoUserPoolTest {
         Mockito.when(mockAdminInitiateAuthResult.getSession()).thenReturn("session");
         Mockito.when(mockAuthenticationResultType.getIdToken()).thenReturn("id_token");
 
-        Principal actual = cognitoUserPool.authenticate("foo", "bar");
+        UserIdentity actual = cognitoUserPool.authenticate("foo", "bar");
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(actual.getUsername(), "foo");
@@ -79,7 +79,7 @@ public class CognitoUserPoolTest {
         Mockito.when(mockRespondToAuthChallengeResult.getAuthenticationResult())
             .thenReturn(mockAuthenticationResultType);
 
-        boolean actual = cognitoUserPool.changePassword(makePrincipal(), "new_password");
+        boolean actual = cognitoUserPool.changePassword(makeUserIdentity(), "new_password");
 
         Assert.assertTrue(actual);
         Mockito.verify(mockAwsCognitoIdentityProvider).respondToAuthChallenge(respondToAuthChallengeRequestCaptor.capture());
@@ -96,14 +96,14 @@ public class CognitoUserPoolTest {
         Mockito.when(mockAwsCognitoIdentityProvider.respondToAuthChallenge(Mockito.any()))
             .thenThrow(InvalidPasswordException.class);
 
-        cognitoUserPool.changePassword(makePrincipal(), "foobar");
+        cognitoUserPool.changePassword(makeUserIdentity(), "foobar");
     }
 
-    private static Principal makePrincipal() {
-        Principal principal = new Principal();
-        principal.setUsername("foo");
-        principal.setSession("session");
-        return principal;
+    private static UserIdentity makeUserIdentity() {
+        UserIdentity identity = new UserIdentity();
+        identity.setUsername("foo");
+        identity.setSession("session");
+        return identity;
     }
 
 }

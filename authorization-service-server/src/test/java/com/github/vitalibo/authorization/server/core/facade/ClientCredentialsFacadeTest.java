@@ -1,11 +1,11 @@
 package com.github.vitalibo.authorization.server.core.facade;
 
 import com.amazonaws.util.json.Jackson;
+import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Response;
-import com.github.vitalibo.authorization.shared.core.Principal;
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import com.github.vitalibo.authorization.shared.core.validation.Rule;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
@@ -46,10 +46,10 @@ public class ClientCredentialsFacadeTest {
     @Test
     public void testAuthenticate() throws UserPoolException {
         OAuth2Request request = makeOAuth2Request();
-        Principal principal = new Principal();
-        principal.setAccessToken("ACCESS_TOKEN");
+        UserIdentity identity = new UserIdentity();
+        identity.setAccessToken("ACCESS_TOKEN");
         Mockito.when(mockUserPool.authenticate(request.getClientId(), request.getClientSecret()))
-            .thenReturn(principal);
+            .thenReturn(identity);
 
         OAuth2Response actual = facade.process(request);
 
@@ -62,7 +62,7 @@ public class ClientCredentialsFacadeTest {
     @Test
     public void testAuthorized() throws UserPoolException {
         Mockito.when(mockUserPool.authenticate(Mockito.any(), Mockito.any()))
-            .thenReturn(new Principal());
+            .thenReturn(new UserIdentity());
         ProxyRequest request = makeProxyRequest();
 
         ProxyResponse actual = facade.process(request);

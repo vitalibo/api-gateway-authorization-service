@@ -1,12 +1,12 @@
 package com.github.vitalibo.authorization.server.core.facade;
 
 import com.github.vitalibo.authorization.server.core.Facade;
+import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
 import com.github.vitalibo.authorization.server.core.model.OAuth2Response;
 import com.github.vitalibo.authorization.server.core.translator.OAuth2RequestTranslator;
-import com.github.vitalibo.authorization.shared.core.Principal;
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import com.github.vitalibo.authorization.shared.core.validation.Rule;
 import com.github.vitalibo.authorization.shared.core.validation.ValidationException;
@@ -61,12 +61,12 @@ public class ClientCredentialsFacade implements Facade {
             throw new ValidationException(errorState);
         }
 
-        Principal principal = userPool.authenticate(
+        UserIdentity identity = userPool.authenticate(
             request.getClientId(), request.getClientSecret());
 
         OAuth2Response response = new OAuth2Response();
         response.setTokenType("Bearer");
-        response.setAccessToken(principal.getAccessToken());
+        response.setAccessToken(identity.getAccessToken());
         response.setExpiresIn(
             ZonedDateTime.now(ZoneId.of("UTC")).plusHours(1)
                 .toEpochSecond());

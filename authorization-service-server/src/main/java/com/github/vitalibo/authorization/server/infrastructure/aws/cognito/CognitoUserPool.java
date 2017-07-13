@@ -2,9 +2,9 @@ package com.github.vitalibo.authorization.server.infrastructure.aws.cognito;
 
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.model.*;
+import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
-import com.github.vitalibo.authorization.shared.core.Principal;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ public class CognitoUserPool implements UserPool {
     private final String clientId;
 
     @Override
-    public Principal authenticate(String username, String password) throws UserPoolException {
+    public UserIdentity authenticate(String username, String password) throws UserPoolException {
         logger.info("authenticate user {}", username);
 
         try {
@@ -37,20 +37,20 @@ public class CognitoUserPool implements UserPool {
                         this.put("PASSWORD", password);
                     }}));
 
-            Principal principal = new Principal();
-            principal.setUsername(username);
-            principal.setSession(authResult.getSession());
-            principal.setAccessToken(Optional.ofNullable(authResult.getAuthenticationResult())
+            UserIdentity identity = new UserIdentity();
+            identity.setUsername(username);
+            identity.setSession(authResult.getSession());
+            identity.setAccessToken(Optional.ofNullable(authResult.getAuthenticationResult())
                 .map(AuthenticationResultType::getIdToken).orElse(null));
-            return principal;
+            return identity;
         } catch (NotAuthorizedException | UserNotFoundException e) {
             throw new UserPoolException(e.getErrorMessage(), e);
         }
     }
 
     @Override
-    public boolean changePassword(Principal principal, String newPassword) throws UserPoolException {
-        logger.info("force change password challenge {}", principal.getUsername());
+    public boolean changePassword(UserIdentity identity, String newPassword) throws UserPoolException {
+        logger.info("force change password challenge {}", identity.getUsername());
 
         try {
             RespondToAuthChallengeResult respondToAuthChallengeResult =
@@ -58,9 +58,9 @@ public class CognitoUserPool implements UserPool {
                     new RespondToAuthChallengeRequest()
                         .withChallengeName(ChallengeNameType.NEW_PASSWORD_REQUIRED)
                         .withClientId(clientId)
-                        .withSession(principal.getSession())
+                        .withSession(identity.getSession())
                         .withChallengeResponses(new HashMap<String, String>() {{
-                            this.put("USERNAME", principal.getUsername());
+                            this.put("USERNAME", identity.getUsername());
                             this.put("NEW_PASSWORD", newPassword);
                         }}));
 

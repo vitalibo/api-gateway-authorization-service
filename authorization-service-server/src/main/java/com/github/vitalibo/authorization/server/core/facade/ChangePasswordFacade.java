@@ -1,12 +1,12 @@
 package com.github.vitalibo.authorization.server.core.facade;
 
 import com.github.vitalibo.authorization.server.core.Facade;
+import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordRequest;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordResponse;
 import com.github.vitalibo.authorization.server.core.translator.ChangePasswordRequestTranslator;
-import com.github.vitalibo.authorization.shared.core.Principal;
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import com.github.vitalibo.authorization.shared.core.validation.Rule;
 import com.github.vitalibo.authorization.shared.core.validation.ValidationException;
@@ -68,11 +68,11 @@ public class ChangePasswordFacade implements Facade {
         response.setAcknowledged(false);
 
         try {
-            Principal principal = userPool.authenticate(
+            UserIdentity identity = userPool.authenticate(
                 request.getUsername(), request.getPreviousPassword());
 
             boolean acknowledged = userPool.changePassword(
-                principal, request.getProposedPassword());
+                identity, request.getProposedPassword());
 
             response.setAcknowledged(acknowledged);
             response.setMessage("Your password has been changed successfully!");

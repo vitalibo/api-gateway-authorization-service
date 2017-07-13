@@ -8,14 +8,17 @@ import com.amazonaws.services.cognitoidp.model.UserNotFoundException;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.github.vitalibo.authorization.basic.core.HttpBasicAuthenticator;
+import com.github.vitalibo.authorization.basic.core.Principal;
 import com.github.vitalibo.authorization.basic.infrastructure.aws.Factory;
-import com.github.vitalibo.authorization.shared.core.Principal;
 import com.github.vitalibo.authorization.shared.core.http.BasicAuthenticationException;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.AuthorizerRequest;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.AuthorizerResponse;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class AuthorizerRequestHandler implements RequestHandler<AuthorizerRequest, AuthorizerResponse> {
@@ -54,6 +57,9 @@ public class AuthorizerRequestHandler implements RequestHandler<AuthorizerReques
                     .withActions(() -> "execute-api:Invoke")
                     .withResources(new Resource(request.getMethodArn()))))
             .withContextAsString("username", principal.getUsername())
+            .withContextAsString("scope", Optional.ofNullable(principal.getScope())
+                .map(o -> o.stream().collect(Collectors.joining(","))).orElse(null))
+            .withContextAsNumber("expirationTime", principal.getExpirationTime())
             .build();
     }
 

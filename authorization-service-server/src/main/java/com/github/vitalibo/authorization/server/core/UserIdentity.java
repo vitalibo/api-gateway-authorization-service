@@ -1,11 +1,10 @@
-package com.github.vitalibo.authorization.shared.core;
+package com.github.vitalibo.authorization.server.core;
 
 import lombok.Data;
 
 @Data
-public class Principal {
+public class UserIdentity {
 
-    private String id;
     private String username;
     private String session;
     private String accessToken;

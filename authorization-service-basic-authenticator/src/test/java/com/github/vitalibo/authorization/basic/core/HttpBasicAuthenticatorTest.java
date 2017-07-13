@@ -1,6 +1,5 @@
 package com.github.vitalibo.authorization.basic.core;
 
-import com.github.vitalibo.authorization.shared.core.Principal;
 import com.github.vitalibo.authorization.shared.core.http.BasicAuthenticationException;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -12,6 +11,7 @@ import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class HttpBasicAuthenticatorTest {
@@ -40,6 +40,8 @@ public class HttpBasicAuthenticatorTest {
         Assert.assertNotNull(actual);
         Assert.assertEquals(actual.getId(), "1234567890");
         Assert.assertEquals(actual.getUsername(), "admin");
+        Assert.assertEquals(actual.getScope(), Arrays.asList("foo", "bar"));
+        Assert.assertEquals(actual.getExpirationTime(), (Long) 1234567890000L);
         Mockito.verify(mockUserPool).verify("httpwatch", "f");
     }
 

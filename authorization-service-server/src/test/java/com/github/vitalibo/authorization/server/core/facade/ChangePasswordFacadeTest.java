@@ -1,11 +1,11 @@
 package com.github.vitalibo.authorization.server.core.facade;
 
 import com.amazonaws.util.json.Jackson;
+import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordRequest;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordResponse;
-import com.github.vitalibo.authorization.shared.core.Principal;
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import com.github.vitalibo.authorization.shared.core.validation.Rule;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
@@ -47,7 +47,7 @@ public class ChangePasswordFacadeTest {
         facade = new ChangePasswordFacade(
             spyErrorState, mockUserPool, mockTemplate, mockPreRules, mockPostRules);
         Mockito.when(mockUserPool.authenticate(Mockito.eq("admin"), Mockito.eq("foo")))
-            .thenReturn(new Principal());
+            .thenReturn(new UserIdentity());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class ChangePasswordFacadeTest {
     @Test
     public void testSuccessChangePassword() throws Exception {
         ProxyRequest request = makeProxyRequest();
-        Mockito.when(mockUserPool.changePassword(Mockito.any(Principal.class), Mockito.eq("bar")))
+        Mockito.when(mockUserPool.changePassword(Mockito.any(UserIdentity.class), Mockito.eq("bar")))
             .thenReturn(true);
 
         ProxyResponse actual = facade.process(request);
@@ -86,7 +86,7 @@ public class ChangePasswordFacadeTest {
     @Test
     public void testFailChangePassword() throws Exception {
         ProxyRequest request = makeProxyRequest();
-        Mockito.when(mockUserPool.changePassword(Mockito.any(Principal.class), Mockito.eq("bar")))
+        Mockito.when(mockUserPool.changePassword(Mockito.any(UserIdentity.class), Mockito.eq("bar")))
             .thenThrow(new UserPoolException("foo"));
 
         ProxyResponse actual = facade.process(request);

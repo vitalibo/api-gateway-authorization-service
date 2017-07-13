@@ -34,7 +34,7 @@ public class CognitoUserPoolTest {
             .thenReturn(mockAdminInitiateAuthResult);
         Mockito.when(mockAdminInitiateAuthResult.getAuthenticationResult())
             .thenReturn(mockAuthenticationResultType);
-        Mockito.when(mockAuthenticationResultType.getAccessToken())
+        Mockito.when(mockAuthenticationResultType.getIdToken())
             .thenReturn("access_token");
         String actual = userPool.verify("user_name", "password");
 

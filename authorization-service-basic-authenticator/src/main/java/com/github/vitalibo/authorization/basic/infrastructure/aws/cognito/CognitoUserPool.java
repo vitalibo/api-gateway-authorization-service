@@ -40,7 +40,7 @@ public class CognitoUserPool implements UserPool {
 
         AuthenticationResultType authenticationResult = authResult.getAuthenticationResult();
 
-        return authenticationResult.getAccessToken();
+        return authenticationResult.getIdToken();
     }
 
 }
