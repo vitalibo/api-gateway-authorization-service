@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class OAuth2Request {
+public class ClientCredentialsRequest {
 
     @JsonProperty(value = "grant_type")
     private String grantType;

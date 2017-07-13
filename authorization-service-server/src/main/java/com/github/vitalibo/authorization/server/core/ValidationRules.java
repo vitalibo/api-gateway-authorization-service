@@ -2,7 +2,7 @@ package com.github.vitalibo.authorization.server.core;
 
 import com.amazonaws.util.StringUtils;
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordRequest;
-import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
+import com.github.vitalibo.authorization.server.core.model.ClientCredentialsRequest;
 import com.github.vitalibo.authorization.shared.core.http.BasicAuthenticationException;
 import com.github.vitalibo.authorization.shared.core.http.BasicScheme;
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
@@ -38,7 +38,7 @@ public final class ValidationRules {
         }
     }
 
-    public static void verifyGrantType(OAuth2Request request, ErrorState errorState) {
+    public static void verifyGrantType(ClientCredentialsRequest request, ErrorState errorState) {
         String grantType = request.getGrantType();
 
         if (StringUtils.isNullOrEmpty(grantType)) {
@@ -55,7 +55,7 @@ public final class ValidationRules {
         }
     }
 
-    public static void verifyClientId(OAuth2Request request, ErrorState errorState) {
+    public static void verifyClientId(ClientCredentialsRequest request, ErrorState errorState) {
         String clientId = request.getClientId();
 
         if (StringUtils.isNullOrEmpty(clientId)) {
@@ -65,7 +65,7 @@ public final class ValidationRules {
         }
     }
 
-    public static void verifyClientSecret(OAuth2Request request, ErrorState errorState) {
+    public static void verifyClientSecret(ClientCredentialsRequest request, ErrorState errorState) {
         String clientSecret = request.getClientSecret();
 
         if (StringUtils.isNullOrEmpty(clientSecret)) {

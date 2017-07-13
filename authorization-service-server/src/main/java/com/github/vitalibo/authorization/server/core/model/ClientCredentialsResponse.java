@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class OAuth2Response {
+public class ClientCredentialsResponse {
 
     @JsonProperty(value = "access_token")
     private String accessToken;

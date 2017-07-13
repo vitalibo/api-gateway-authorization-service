@@ -5,13 +5,13 @@ import com.github.vitalibo.authorization.server.TestHelper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class OAuth2RequestTest {
+public class ClientCredentialsRequestTest {
 
     @Test
     public void testFromJson() {
-        OAuth2Request request = Jackson.fromJsonString(
-            TestHelper.resourceAsString("/OAuth2Request.json"),
-            OAuth2Request.class);
+        ClientCredentialsRequest request = Jackson.fromJsonString(
+            TestHelper.resourceAsString("/ClientCredentialsRequest.json"),
+            ClientCredentialsRequest.class);
 
         Assert.assertNotNull(request);
         Assert.assertEquals(request.getGrantType(), "client_credentials");

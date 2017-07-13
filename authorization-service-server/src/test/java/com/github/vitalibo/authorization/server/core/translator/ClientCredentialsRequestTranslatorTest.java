@@ -1,22 +1,22 @@
 package com.github.vitalibo.authorization.server.core.translator;
 
 import com.github.vitalibo.authorization.server.TestHelper;
-import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
+import com.github.vitalibo.authorization.server.core.model.ClientCredentialsRequest;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 
-public class OAuth2RequestTranslatorTest {
+public class ClientCredentialsRequestTranslatorTest {
 
     @Test
     public void testTranslateBody() {
         ProxyRequest request = new ProxyRequest();
-        request.setBody(TestHelper.resourceAsString("/OAuth2Request.json"));
+        request.setBody(TestHelper.resourceAsString("/ClientCredentialsRequest.json"));
         request.setHeaders(Collections.emptyMap());
 
-        OAuth2Request actual = OAuth2RequestTranslator.from(request);
+        ClientCredentialsRequest actual = ClientCredentialsRequestTranslator.from(request);
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(actual.getGrantType(), "client_credentials");
@@ -31,7 +31,7 @@ public class OAuth2RequestTranslatorTest {
         request.setHeaders(Collections.singletonMap(
             "Authorization", "Basic MTIzNDU2Nzg5MDp6YXExeHN3MmNkZTN2ZnI0Ymd0NW5oeTY="));
 
-        OAuth2Request actual = OAuth2RequestTranslator.from(request);
+        ClientCredentialsRequest actual = ClientCredentialsRequestTranslator.from(request);
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(actual.getGrantType(), "client_credentials");
@@ -45,7 +45,7 @@ public class OAuth2RequestTranslatorTest {
         request.setBody("{}");
         request.setHeaders(Collections.emptyMap());
 
-        OAuth2Request actual = OAuth2RequestTranslator.from(request);
+        ClientCredentialsRequest actual = ClientCredentialsRequestTranslator.from(request);
 
         Assert.assertNotNull(actual);
         Assert.assertNull(actual.getGrantType());

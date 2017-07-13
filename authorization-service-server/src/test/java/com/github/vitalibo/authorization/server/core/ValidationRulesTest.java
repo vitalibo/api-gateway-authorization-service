@@ -1,7 +1,7 @@
 package com.github.vitalibo.authorization.server.core;
 
 import com.github.vitalibo.authorization.server.core.model.ChangePasswordRequest;
-import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
+import com.github.vitalibo.authorization.server.core.model.ClientCredentialsRequest;
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 import org.testng.Assert;
@@ -77,7 +77,7 @@ public class ValidationRulesTest {
 
     @Test
     public void testPassVerifyGrantType() {
-        OAuth2Request request = new OAuth2Request();
+        ClientCredentialsRequest request = new ClientCredentialsRequest();
         request.setGrantType("client_credentials");
 
         ValidationRules.verifyGrantType(request, errorState);
@@ -94,7 +94,7 @@ public class ValidationRulesTest {
 
     @Test(dataProvider = "samplesIncorrectGrantType")
     public void testFailVerifyGrantType(String grantType) {
-        OAuth2Request request = new OAuth2Request();
+        ClientCredentialsRequest request = new ClientCredentialsRequest();
         request.setGrantType(grantType);
 
         ValidationRules.verifyGrantType(request, errorState);
@@ -105,7 +105,7 @@ public class ValidationRulesTest {
 
     @Test
     public void testPassVerifyClientId() {
-        OAuth2Request request = new OAuth2Request();
+        ClientCredentialsRequest request = new ClientCredentialsRequest();
         request.setClientId("username");
 
         ValidationRules.verifyClientId(request, errorState);
@@ -115,7 +115,7 @@ public class ValidationRulesTest {
 
     @Test(dataProvider = "samples")
     public void testFailVerifyClientId(String clientId) {
-        OAuth2Request request = new OAuth2Request();
+        ClientCredentialsRequest request = new ClientCredentialsRequest();
         request.setClientId(clientId);
 
         ValidationRules.verifyClientId(request, errorState);
@@ -126,7 +126,7 @@ public class ValidationRulesTest {
 
     @Test
     public void testPassVerifyClientSecret() {
-        OAuth2Request request = new OAuth2Request();
+        ClientCredentialsRequest request = new ClientCredentialsRequest();
         request.setClientSecret("secret");
 
         ValidationRules.verifyClientSecret(request, errorState);
@@ -136,7 +136,7 @@ public class ValidationRulesTest {
 
     @Test(dataProvider = "samples")
     public void testFailVerifyClientSecret(String clientSecret) {
-        OAuth2Request request = new OAuth2Request();
+        ClientCredentialsRequest request = new ClientCredentialsRequest();
         request.setClientSecret(clientSecret);
 
         ValidationRules.verifyClientSecret(request, errorState);

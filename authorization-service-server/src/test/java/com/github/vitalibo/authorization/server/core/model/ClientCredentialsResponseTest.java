@@ -5,11 +5,11 @@ import com.github.vitalibo.authorization.server.TestHelper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class OAuth2ResponseTest {
+public class ClientCredentialsResponseTest {
 
     @Test
     public void testToJson() {
-        OAuth2Response response = new OAuth2Response();
+        ClientCredentialsResponse response = new ClientCredentialsResponse();
         response.setAccessToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
         response.setExpiresIn(1234567890L);
         response.setTokenType("Bearer");
@@ -17,7 +17,7 @@ public class OAuth2ResponseTest {
         String actual = Jackson.toJsonString(response);
 
         Assert.assertNotNull(actual);
-        Assert.assertEquals(actual, TestHelper.resourceAsJsonString("/OAuth2Response.json"));
+        Assert.assertEquals(actual, TestHelper.resourceAsJsonString("/ClientCredentialsResponse.json"));
     }
 
 }

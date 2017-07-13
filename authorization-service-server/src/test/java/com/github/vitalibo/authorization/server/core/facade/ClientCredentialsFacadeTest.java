@@ -4,8 +4,8 @@ import com.amazonaws.util.json.Jackson;
 import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
-import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
-import com.github.vitalibo.authorization.server.core.model.OAuth2Response;
+import com.github.vitalibo.authorization.server.core.model.ClientCredentialsRequest;
+import com.github.vitalibo.authorization.server.core.model.ClientCredentialsResponse;
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import com.github.vitalibo.authorization.shared.core.validation.Rule;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
@@ -32,7 +32,7 @@ public class ClientCredentialsFacadeTest {
     @Mock
     private Collection<Rule<ProxyRequest>> mockPreRules;
     @Mock
-    private Collection<Rule<OAuth2Request>> mockPostRules;
+    private Collection<Rule<ClientCredentialsRequest>> mockPostRules;
 
     private ClientCredentialsFacade facade;
 
@@ -45,13 +45,13 @@ public class ClientCredentialsFacadeTest {
 
     @Test
     public void testAuthenticate() throws UserPoolException {
-        OAuth2Request request = makeOAuth2Request();
+        ClientCredentialsRequest request = makeOAuth2Request();
         UserIdentity identity = new UserIdentity();
         identity.setAccessToken("ACCESS_TOKEN");
         Mockito.when(mockUserPool.authenticate(request.getClientId(), request.getClientSecret()))
             .thenReturn(identity);
 
-        OAuth2Response actual = facade.process(request);
+        ClientCredentialsResponse actual = facade.process(request);
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(actual.getAccessToken(), "ACCESS_TOKEN");
@@ -85,8 +85,8 @@ public class ClientCredentialsFacadeTest {
         Assert.assertNotNull(actual.getBody());
     }
 
-    private static OAuth2Request makeOAuth2Request() {
-        OAuth2Request request = new OAuth2Request();
+    private static ClientCredentialsRequest makeOAuth2Request() {
+        ClientCredentialsRequest request = new ClientCredentialsRequest();
         request.setGrantType("client_credentials");
         request.setClientId("foo");
         request.setClientSecret("bar");

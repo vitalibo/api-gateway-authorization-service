@@ -4,9 +4,9 @@ import com.github.vitalibo.authorization.server.core.Facade;
 import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
-import com.github.vitalibo.authorization.server.core.model.OAuth2Request;
-import com.github.vitalibo.authorization.server.core.model.OAuth2Response;
-import com.github.vitalibo.authorization.server.core.translator.OAuth2RequestTranslator;
+import com.github.vitalibo.authorization.server.core.model.ClientCredentialsRequest;
+import com.github.vitalibo.authorization.server.core.model.ClientCredentialsResponse;
+import com.github.vitalibo.authorization.server.core.translator.ClientCredentialsRequestTranslator;
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import com.github.vitalibo.authorization.shared.core.validation.Rule;
 import com.github.vitalibo.authorization.shared.core.validation.ValidationException;
@@ -26,7 +26,7 @@ public class ClientCredentialsFacade implements Facade {
     private final ErrorState errorState;
     private final UserPool userPool;
     private final Collection<Rule<ProxyRequest>> preRules;
-    private final Collection<Rule<OAuth2Request>> postRules;
+    private final Collection<Rule<ClientCredentialsRequest>> postRules;
 
     @Override
     public ProxyResponse process(ProxyRequest request) {
@@ -36,8 +36,8 @@ public class ClientCredentialsFacade implements Facade {
         }
 
         try {
-            OAuth2Response response = process(
-                OAuth2RequestTranslator.from(request));
+            ClientCredentialsResponse response = process(
+                ClientCredentialsRequestTranslator.from(request));
 
             return new ProxyResponse.Builder()
                 .withStatusCode(HttpStatus.SC_OK)
@@ -54,7 +54,7 @@ public class ClientCredentialsFacade implements Facade {
         }
     }
 
-    OAuth2Response process(OAuth2Request request) throws UserPoolException {
+    ClientCredentialsResponse process(ClientCredentialsRequest request) throws UserPoolException {
         postRules.forEach(rule -> rule.accept(request, errorState));
         if (errorState.hasErrors()) {
             throw new ValidationException(errorState);
@@ -63,7 +63,7 @@ public class ClientCredentialsFacade implements Facade {
         UserIdentity identity = userPool.authenticate(
             request.getClientId(), request.getClientSecret());
 
-        OAuth2Response response = new OAuth2Response();
+        ClientCredentialsResponse response = new ClientCredentialsResponse();
         response.setTokenType("Bearer");
         response.setAccessToken(identity.getAccessToken());
         response.setExpiresIn(
