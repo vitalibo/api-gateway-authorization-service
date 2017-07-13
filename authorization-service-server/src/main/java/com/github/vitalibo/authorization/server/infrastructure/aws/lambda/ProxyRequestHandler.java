@@ -7,7 +7,7 @@ import com.github.vitalibo.authorization.server.core.Route;
 import com.github.vitalibo.authorization.server.core.Router;
 import com.github.vitalibo.authorization.server.infrastructure.aws.Factory;
 import com.github.vitalibo.authorization.shared.core.validation.ValidationException;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyErrorResponse;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyError;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequestTranslator;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
@@ -44,11 +44,10 @@ public class ProxyRequestHandler implements RequestHandler<ProxyRequest, ProxyRe
                 break;
 
             case NOT_FOUND:
-                return new ProxyErrorResponse.Builder()
+                return new ProxyError.Builder()
                     .withStatusCode(HttpStatus.SC_NOT_FOUND)
                     .withRequestId(context.getAwsRequestId())
-                    .build()
-                    .asProxyResponse();
+                    .build();
 
             default:
                 throw new IllegalStateException();
@@ -57,12 +56,11 @@ public class ProxyRequestHandler implements RequestHandler<ProxyRequest, ProxyRe
         try {
             return facade.process(request);
         } catch (ValidationException e) {
-            return new ProxyErrorResponse.Builder()
+            return new ProxyError.Builder()
                 .withStatusCode(HttpStatus.SC_BAD_REQUEST)
                 .withErrorState(e.getErrorState())
                 .withRequestId(context.getAwsRequestId())
-                .build()
-                .asProxyResponse();
+                .build();
         } catch (Exception e) {
             logger.error("Internal Server Error", e);
             throw new RuntimeException(e);

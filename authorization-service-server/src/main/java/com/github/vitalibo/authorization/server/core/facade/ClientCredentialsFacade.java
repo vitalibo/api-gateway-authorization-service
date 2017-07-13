@@ -10,7 +10,7 @@ import com.github.vitalibo.authorization.server.core.translator.OAuth2RequestTra
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import com.github.vitalibo.authorization.shared.core.validation.Rule;
 import com.github.vitalibo.authorization.shared.core.validation.ValidationException;
-import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyErrorResponse;
+import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyError;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyRequest;
 import com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy.ProxyResponse;
 import lombok.RequiredArgsConstructor;
@@ -47,11 +47,10 @@ public class ClientCredentialsFacade implements Facade {
         } catch (UserPoolException e) {
             ErrorState errorState = new ErrorState();
             errorState.addError("authorization", e.getMessage());
-            return new ProxyErrorResponse.Builder()
+            return new ProxyError.Builder()
                 .withStatusCode(HttpStatus.SC_UNAUTHORIZED)
                 .withErrorState(errorState)
-                .build()
-                .asProxyResponse();
+                .build();
         }
     }
 

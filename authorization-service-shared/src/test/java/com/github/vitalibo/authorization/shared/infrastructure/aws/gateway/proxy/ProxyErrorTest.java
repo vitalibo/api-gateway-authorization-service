@@ -1,6 +1,5 @@
 package com.github.vitalibo.authorization.shared.infrastructure.aws.gateway.proxy;
 
-import com.amazonaws.util.json.Jackson;
 import com.github.vitalibo.authorization.shared.TestHelper;
 import com.github.vitalibo.authorization.shared.core.validation.ErrorState;
 import org.apache.http.HttpStatus;
@@ -9,13 +8,13 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
-public class ProxyErrorResponseTest {
+public class ProxyErrorTest {
 
     @Test
     public void testBadRequest() {
         ErrorState errorState = new ErrorState();
         errorState.put("key", Arrays.asList("foo", "bar"));
-        ProxyErrorResponse error = new ProxyErrorResponse.Builder()
+        ProxyResponse error = new ProxyError.Builder()
             .withStatusCode(HttpStatus.SC_BAD_REQUEST)
             .withErrorState(errorState)
             .withRequestId("aq1sw2de3fr4gt5hy6ju7ki8lo9p0")
@@ -23,38 +22,38 @@ public class ProxyErrorResponseTest {
 
         Assert.assertNotNull(error);
         Assert.assertEquals(
-            Jackson.toJsonString(error),
+            error.getBody(),
             TestHelper.resourceAsJsonString("/error/BadRequestResponse.json"));
     }
 
     @Test
     public void testNotFound() {
-        ProxyErrorResponse error = new ProxyErrorResponse.Builder()
+        ProxyResponse error = new ProxyError.Builder()
             .withStatusCode(HttpStatus.SC_NOT_FOUND)
             .withRequestId("aq1sw2de3fr4gt5hy6ju7ki8lo9p0")
             .build();
 
         Assert.assertNotNull(error);
         Assert.assertEquals(
-            Jackson.toJsonString(error),
+            error.getBody(),
             TestHelper.resourceAsJsonString("/error/NotFoundResponse.json"));
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testEmptyError() {
-        new ProxyErrorResponse.Builder().build();
+        new ProxyError.Builder()
+            .build();
     }
 
     @Test
-    public void testAsProxyResponse() {
+    public void testBuild() {
         ErrorState errorState = new ErrorState();
         errorState.put("key", Arrays.asList("foo", "bar"));
-        ProxyResponse response = new ProxyErrorResponse.Builder()
+        ProxyResponse response = new ProxyError.Builder()
             .withStatusCode(HttpStatus.SC_BAD_REQUEST)
             .withErrorState(errorState)
             .withRequestId("aq1sw2de3fr4gt5hy6ju7ki8lo9p0")
-            .build()
-            .asProxyResponse();
+            .build();
 
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getStatusCode(), (Integer) HttpStatus.SC_BAD_REQUEST);

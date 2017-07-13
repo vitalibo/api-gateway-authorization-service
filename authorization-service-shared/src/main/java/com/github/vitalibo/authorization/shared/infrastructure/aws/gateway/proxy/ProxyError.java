@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Data
 @JsonInclude(Include.NON_NULL)
-public class ProxyErrorResponse {
+public class ProxyError {
 
     @JsonProperty(value = "status")
     private final Integer status;
@@ -26,13 +26,6 @@ public class ProxyErrorResponse {
 
     @JsonProperty(value = "request-id")
     private final String requestId;
-
-    public ProxyResponse asProxyResponse() {
-        return new ProxyResponse.Builder()
-            .withStatusCode(status)
-            .withBody(this)
-            .build();
-    }
 
     public static class Builder {
 
@@ -58,17 +51,20 @@ public class ProxyErrorResponse {
             return this;
         }
 
-        public ProxyErrorResponse build() {
+        public ProxyResponse build() {
             if (statusCode == null) {
                 throw new IllegalArgumentException("Status code can't be Null");
             }
 
-            return new ProxyErrorResponse(
-                statusCode,
-                HTTP_STATUS_PHRASE.getReason(
-                    statusCode, Locale.ENGLISH),
-                errorState,
-                requestId);
+            return new ProxyResponse.Builder()
+                .withStatusCode(statusCode)
+                .withBody(new ProxyError(
+                    statusCode,
+                    HTTP_STATUS_PHRASE.getReason(
+                        statusCode, Locale.ENGLISH),
+                    errorState,
+                    requestId))
+                .build();
         }
 
     }
