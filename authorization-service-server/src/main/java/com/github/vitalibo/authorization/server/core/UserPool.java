@@ -2,8 +2,8 @@ package com.github.vitalibo.authorization.server.core;
 
 public interface UserPool {
 
-    UserIdentity authenticate(String username, String password) throws UserPoolException;
+    String authenticate(String username, String password) throws UserPoolException;
 
-    boolean changePassword(UserIdentity identity, String newPassword) throws UserPoolException;
+    void changePassword(String username, String previousPassword, String proposedPassword) throws UserPoolException;
 
 }

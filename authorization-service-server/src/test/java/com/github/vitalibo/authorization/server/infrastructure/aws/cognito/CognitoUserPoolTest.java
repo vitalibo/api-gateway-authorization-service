@@ -2,7 +2,6 @@ package com.github.vitalibo.authorization.server.infrastructure.aws.cognito;
 
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.model.*;
-import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
 import org.mockito.*;
 import org.testng.Assert;
@@ -20,10 +19,10 @@ public class CognitoUserPoolTest {
     private AuthenticationResultType mockAuthenticationResultType;
     @Captor
     private ArgumentCaptor<AdminInitiateAuthRequest> adminInitiateAuthRequestCaptor;
-    @Mock
-    private RespondToAuthChallengeResult mockRespondToAuthChallengeResult;
     @Captor
     private ArgumentCaptor<RespondToAuthChallengeRequest> respondToAuthChallengeRequestCaptor;
+    @Captor
+    private ArgumentCaptor<ChangePasswordRequest> changePasswordRequestCaptor;
 
     private CognitoUserPool cognitoUserPool;
 
@@ -40,15 +39,12 @@ public class CognitoUserPoolTest {
             .thenReturn(mockAdminInitiateAuthResult);
         Mockito.when(mockAdminInitiateAuthResult.getAuthenticationResult())
             .thenReturn(mockAuthenticationResultType);
-        Mockito.when(mockAdminInitiateAuthResult.getSession()).thenReturn("session");
         Mockito.when(mockAuthenticationResultType.getIdToken()).thenReturn("id_token");
 
-        UserIdentity actual = cognitoUserPool.authenticate("foo", "bar");
+        String actual = cognitoUserPool.authenticate("foo", "bar");
 
         Assert.assertNotNull(actual);
-        Assert.assertEquals(actual.getUsername(), "foo");
-        Assert.assertEquals(actual.getSession(), "session");
-        Assert.assertEquals(actual.getAccessToken(), "id_token");
+        Assert.assertEquals(actual, "id_token");
         Mockito.verify(mockAwsCognitoIdentityProvider).adminInitiateAuth(adminInitiateAuthRequestCaptor.capture());
         AdminInitiateAuthRequest request = adminInitiateAuthRequestCaptor.getValue();
         Assert.assertEquals(request.getAuthFlow(), "ADMIN_NO_SRP_AUTH");
@@ -56,6 +52,16 @@ public class CognitoUserPoolTest {
         Assert.assertEquals(request.getUserPoolId(), "user_pool_id");
         Assert.assertEquals(request.getAuthParameters().get("USERNAME"), "foo");
         Assert.assertEquals(request.getAuthParameters().get("PASSWORD"), "bar");
+    }
+
+    @Test(expectedExceptions = UserPoolException.class, expectedExceptionsMessageRegExp = "New password required")
+    public void testFailAuthenticate() throws UserPoolException {
+        Mockito.when(mockAwsCognitoIdentityProvider.adminInitiateAuth(Mockito.any()))
+            .thenReturn(mockAdminInitiateAuthResult);
+        Mockito.when(mockAdminInitiateAuthResult.getChallengeName())
+            .thenReturn(ChallengeNameType.NEW_PASSWORD_REQUIRED.name());
+
+        cognitoUserPool.authenticate("foo", "bar");
     }
 
     @DataProvider
@@ -74,36 +80,78 @@ public class CognitoUserPoolTest {
 
     @Test
     public void testChangePassword() throws UserPoolException {
-        Mockito.when(mockAwsCognitoIdentityProvider.respondToAuthChallenge(Mockito.any()))
-            .thenReturn(mockRespondToAuthChallengeResult);
-        Mockito.when(mockRespondToAuthChallengeResult.getAuthenticationResult())
+        Mockito.when(mockAwsCognitoIdentityProvider.adminInitiateAuth(Mockito.any()))
+            .thenReturn(mockAdminInitiateAuthResult);
+        Mockito.when(mockAdminInitiateAuthResult.getAuthenticationResult())
             .thenReturn(mockAuthenticationResultType);
+        Mockito.when(mockAuthenticationResultType.getAccessToken())
+            .thenReturn("access_token");
 
-        boolean actual = cognitoUserPool.changePassword(makeUserIdentity(), "new_password");
+        cognitoUserPool.changePassword(
+            "admin", "foo", "bar");
 
-        Assert.assertTrue(actual);
+        Mockito.verify(mockAwsCognitoIdentityProvider).adminInitiateAuth(adminInitiateAuthRequestCaptor.capture());
+        AdminInitiateAuthRequest authRequest = adminInitiateAuthRequestCaptor.getValue();
+        Assert.assertEquals(authRequest.getAuthParameters().get("USERNAME"), "admin");
+        Assert.assertEquals(authRequest.getAuthParameters().get("PASSWORD"), "foo");
+        Mockito.verify(mockAwsCognitoIdentityProvider).changePassword(changePasswordRequestCaptor.capture());
+        ChangePasswordRequest changePasswordRequest = changePasswordRequestCaptor.getValue();
+        Assert.assertEquals(changePasswordRequest.getAccessToken(), "access_token");
+        Assert.assertEquals(changePasswordRequest.getPreviousPassword(), "foo");
+        Assert.assertEquals(changePasswordRequest.getProposedPassword(), "bar");
+    }
+
+    @Test
+    public void testRespondToNewPasswordRequired() {
+        Mockito.when(mockAwsCognitoIdentityProvider.adminInitiateAuth(Mockito.any()))
+            .thenReturn(mockAdminInitiateAuthResult);
+        Mockito.when(mockAdminInitiateAuthResult.getChallengeName())
+            .thenReturn(ChallengeNameType.NEW_PASSWORD_REQUIRED.name());
+        Mockito.when(mockAdminInitiateAuthResult.getSession())
+            .thenReturn("session");
+
+        cognitoUserPool.changePassword(
+            "admin", "foo", "bar");
+
+        Mockito.verify(mockAwsCognitoIdentityProvider).adminInitiateAuth(adminInitiateAuthRequestCaptor.capture());
+        AdminInitiateAuthRequest authRequest = adminInitiateAuthRequestCaptor.getValue();
+        Assert.assertEquals(authRequest.getAuthParameters().get("USERNAME"), "admin");
+        Assert.assertEquals(authRequest.getAuthParameters().get("PASSWORD"), "foo");
         Mockito.verify(mockAwsCognitoIdentityProvider).respondToAuthChallenge(respondToAuthChallengeRequestCaptor.capture());
-        RespondToAuthChallengeRequest request = respondToAuthChallengeRequestCaptor.getValue();
-        Assert.assertEquals(request.getChallengeName(), "NEW_PASSWORD_REQUIRED");
-        Assert.assertEquals(request.getClientId(), "client_id");
-        Assert.assertEquals(request.getSession(), "session");
-        Assert.assertEquals(request.getChallengeResponses().get("USERNAME"), "foo");
-        Assert.assertEquals(request.getChallengeResponses().get("NEW_PASSWORD"), "new_password");
+        RespondToAuthChallengeRequest respondToAuthChallengeRequest = respondToAuthChallengeRequestCaptor.getValue();
+        Assert.assertEquals(respondToAuthChallengeRequest.getChallengeName(), "NEW_PASSWORD_REQUIRED");
+        Assert.assertEquals(respondToAuthChallengeRequest.getClientId(), "client_id");
+        Assert.assertEquals(respondToAuthChallengeRequest.getSession(), "session");
+        Assert.assertEquals(respondToAuthChallengeRequest.getChallengeResponses().get("USERNAME"), "admin");
+        Assert.assertEquals(respondToAuthChallengeRequest.getChallengeResponses().get("NEW_PASSWORD"), "bar");
+    }
+
+    @Test(expectedExceptions = UserPoolException.class)
+    public void testFailRespondToNewPasswordRequired() throws UserPoolException {
+        Mockito.when(mockAwsCognitoIdentityProvider.adminInitiateAuth(Mockito.any()))
+            .thenReturn(mockAdminInitiateAuthResult);
+        Mockito.when(mockAdminInitiateAuthResult.getChallengeName())
+            .thenReturn(ChallengeNameType.NEW_PASSWORD_REQUIRED.name());
+        Mockito.when(mockAwsCognitoIdentityProvider.respondToAuthChallenge(Mockito.any()))
+            .thenThrow(InvalidPasswordException.class);
+
+        cognitoUserPool.changePassword(
+            "admin", "foo", "bar");
     }
 
     @Test(expectedExceptions = UserPoolException.class)
     public void testFailChangePassword() throws UserPoolException {
-        Mockito.when(mockAwsCognitoIdentityProvider.respondToAuthChallenge(Mockito.any()))
+        Mockito.when(mockAwsCognitoIdentityProvider.adminInitiateAuth(Mockito.any()))
+            .thenReturn(mockAdminInitiateAuthResult);
+        Mockito.when(mockAdminInitiateAuthResult.getAuthenticationResult())
+            .thenReturn(mockAuthenticationResultType);
+        Mockito.when(mockAuthenticationResultType.getAccessToken())
+            .thenReturn("access_token");
+        Mockito.when(mockAwsCognitoIdentityProvider.changePassword(Mockito.any()))
             .thenThrow(InvalidPasswordException.class);
 
-        cognitoUserPool.changePassword(makeUserIdentity(), "foobar");
-    }
-
-    private static UserIdentity makeUserIdentity() {
-        UserIdentity identity = new UserIdentity();
-        identity.setUsername("foo");
-        identity.setSession("session");
-        return identity;
+        cognitoUserPool.changePassword(
+            "admin", "foo", "bar");
     }
 
 }

@@ -1,7 +1,6 @@
 package com.github.vitalibo.authorization.server.core.facade;
 
 import com.amazonaws.util.json.Jackson;
-import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.ClientCredentialsRequest;
@@ -45,11 +44,9 @@ public class ClientCredentialsFacadeTest {
 
     @Test
     public void testAuthenticate() throws UserPoolException {
-        ClientCredentialsRequest request = makeOAuth2Request();
-        UserIdentity identity = new UserIdentity();
-        identity.setAccessToken("ACCESS_TOKEN");
+        ClientCredentialsRequest request = makeClientCredentialsRequestRequest();
         Mockito.when(mockUserPool.authenticate(request.getClientId(), request.getClientSecret()))
-            .thenReturn(identity);
+            .thenReturn("ACCESS_TOKEN");
 
         ClientCredentialsResponse actual = facade.process(request);
 
@@ -62,7 +59,7 @@ public class ClientCredentialsFacadeTest {
     @Test
     public void testAuthorized() throws UserPoolException {
         Mockito.when(mockUserPool.authenticate(Mockito.any(), Mockito.any()))
-            .thenReturn(new UserIdentity());
+            .thenReturn("foo");
         ProxyRequest request = makeProxyRequest();
 
         ProxyResponse actual = facade.process(request);
@@ -85,7 +82,7 @@ public class ClientCredentialsFacadeTest {
         Assert.assertNotNull(actual.getBody());
     }
 
-    private static ClientCredentialsRequest makeOAuth2Request() {
+    private static ClientCredentialsRequest makeClientCredentialsRequestRequest() {
         ClientCredentialsRequest request = new ClientCredentialsRequest();
         request.setGrantType("client_credentials");
         request.setClientId("foo");
@@ -96,7 +93,7 @@ public class ClientCredentialsFacadeTest {
     private static ProxyRequest makeProxyRequest() {
         ProxyRequest request = new ProxyRequest();
         request.setHeaders(new HashMap<>());
-        request.setBody(Jackson.toJsonString(makeOAuth2Request()));
+        request.setBody(Jackson.toJsonString(makeClientCredentialsRequestRequest()));
         return request;
     }
 

@@ -1,7 +1,6 @@
 package com.github.vitalibo.authorization.server.core.facade;
 
 import com.github.vitalibo.authorization.server.core.Facade;
-import com.github.vitalibo.authorization.server.core.UserIdentity;
 import com.github.vitalibo.authorization.server.core.UserPool;
 import com.github.vitalibo.authorization.server.core.UserPoolException;
 import com.github.vitalibo.authorization.server.core.model.ClientCredentialsRequest;
@@ -60,12 +59,12 @@ public class ClientCredentialsFacade implements Facade {
             throw new ValidationException(errorState);
         }
 
-        UserIdentity identity = userPool.authenticate(
+        String accessToken = userPool.authenticate(
             request.getClientId(), request.getClientSecret());
 
         ClientCredentialsResponse response = new ClientCredentialsResponse();
         response.setTokenType("Bearer");
-        response.setAccessToken(identity.getAccessToken());
+        response.setAccessToken(accessToken);
         response.setExpiresIn(
             ZonedDateTime.now(ZoneId.of("UTC")).plusHours(1)
                 .toEpochSecond());
