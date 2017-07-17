@@ -5,7 +5,483 @@
   },
   "item": [
     {
-      "name": "Basic Authentication: Anonymous user",
+      "name": "Authorization Server :: Common :: Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 404\"] = responseCode.code === 404;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Status is present\"] = responseJson.status;",
+              "tests[\"Message is present\"] = responseJson.message;",
+              "tests[\"Request Id is present\"] = responseBody.has(\"request-id\");"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/foo",
+        "method": "GET"
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: Open page",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "tests[\"Content-Type is text/html\"] = postman.getResponseHeader(\"Content-Type\").has('text/html');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "GET"
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: Empty request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 400\"] = responseCode.code === 400;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Proposed Password can't be empty\"] = responseJson.errors.proposed_password;",
+              "tests[\"Previous Password can't be empty\"] = responseJson.errors.previous_password;",
+              "tests[\"User Name can't be empty\"] = responseJson.errors.username;"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ }"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: Empty request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 400\"] = responseCode.code === 400;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Proposed Password can't be empty\"] = responseJson.errors.proposed_password;",
+              "tests[\"Previous Password can't be empty\"] = responseJson.errors.previous_password;",
+              "tests[\"User Name can't be empty\"] = responseJson.errors.username;"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ }"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: User does not exist",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Password didn't change\"] = responseJson.acknowledged === false;",
+              "tests[\"User does not exist.\"] = responseJson.message === 'User does not exist.';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \n\t\"username\": \"foo\",\n\t\"previous_password\": \"Welcome2017!\",\n\t\"proposed_password\": \"Welcome2018!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: Incorrect  password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Password didn't change\"] = responseJson.acknowledged === false;",
+              "tests[\"Incorrect username or password\"] = responseJson.message === 'Incorrect username or password.';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \n\t\"username\": \"admin\",\n\t\"previous_password\": \"foo\",\n\t\"proposed_password\": \"Welcome2018!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: Password not long enough",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Password didn't change\"] = responseJson.acknowledged === false;",
+              "tests[\"Proposed Password not long enough\"] = responseJson.message.has('1 validation error detected: Value at \\'proposedPassword\\'');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \n\t\"username\": \"admin\",\n\t\"previous_password\": \"Welcome2017!\",\n\t\"proposed_password\": \"ff\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: Password not long enough #2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Password didn't change\"] = responseJson.acknowledged === false;",
+              "tests[\"Proposed Password not long enough\"] = responseJson.message.has('Password not long enough');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \n\t\"username\": \"admin\",\n\t\"previous_password\": \"Welcome2017!\",\n\t\"proposed_password\": \"ffffff\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Password didn't change\"] = responseJson.acknowledged === true;",
+              "tests[\"Password changed successfully\"] = responseJson.message == 'Your password has been changed successfully!';",
+              "",
+              "postman.setNextRequest('Authorization Server :: Change Password :: Inactive old password');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \n\t\"username\": \"admin\",\n\t\"previous_password\": \"Welcome2017!\",\n\t\"proposed_password\": \"Welcome2018!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: Inactive old password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Password didn't change\"] = responseJson.acknowledged === false;",
+              "tests[\"Incorrect username or password\"] = responseJson.message === 'Incorrect username or password.';",
+              "",
+              "postman.setNextRequest('Authorization Server :: Change Password :: Verify new password');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \n\t\"username\": \"admin\",\n\t\"previous_password\": \"Welcome2017!\",\n\t\"proposed_password\": \"Welcome2019!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Change Password :: Verify new password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Password didn't change\"] = responseJson.acknowledged === true;",
+              "tests[\"Password changed successfully\"] = responseJson.message == 'Your password has been changed successfully!';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/account",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \n\t\"username\": \"admin\",\n\t\"previous_password\": \"Welcome2018!\",\n\t\"proposed_password\": \"Welcome2017!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Client Credentials :: Get method not supported",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 404\"] = responseCode.code === 404;"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/oauth/token",
+        "method": "GET"
+      }
+    },
+    {
+      "name": "Authorization Server :: Client Credentials :: Empty request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 400\"] = responseCode.code === 400;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Body can't be empty\"] = responseJson.errors.body;"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/oauth/token",
+        "method": "POST"
+      }
+    },
+    {
+      "name": "Authorization Server :: Client Credentials :: Empty request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 400\"] = responseCode.code === 400;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Grant Type can't be empty\"] = responseJson.errors.grant_type;",
+              "tests[\"Client Secret can't be empty\"] = responseJson.errors.client_secret;",
+              "tests[\"Client Id can't be empty\"] = responseJson.errors.client_id;"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/oauth/token",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ }"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Client Credentials :: Bad Grant Type",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 400\"] = responseCode.code === 400;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Grant Type has unknown valeu\"] = responseJson.errors.grant_type;"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/oauth/token",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"grant_type\": \"foo\",\n\t\"client_secret\": \"Welcome2017!\",\n\t\"client_id\": \"admin\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Authorization Server :: Client Credentials :: Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "var responseJson = JSON.parse(responseBody);",
+              "tests[\"Access Token is present\"] = responseJson.access_token;",
+              "tests[\"Expires In is present\"] = responseJson.expires_in;",
+              "tests[\"Token Type is present\"] = responseJson.token_type;",
+              "tests[\"Token Type is Bearer\"] = responseJson.token_type === 'Bearer';",
+              "",
+              "postman.setEnvironmentVariable(\"accessKey\", responseJson.access_token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{AuthorizationServer}}/oauth/token",
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"grant_type\": \"client_credentials\",\n\t\"client_secret\": \"Welcome2017!\",\n\t\"client_id\": \"admin\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Mock API :: Basic Authentication :: Anonymous user",
       "event": [
         {
           "listen": "test",
@@ -25,7 +501,7 @@
       }
     },
     {
-      "name": "Basic Authentication: Use Bearer authentication scheme",
+      "name": "Mock API :: Basic Authentication :: Use Bearer authentication scheme",
       "event": [
         {
           "listen": "test",
@@ -51,7 +527,7 @@
       }
     },
     {
-      "name": "Basic Authentication: Incorrect user name or password",
+      "name": "Mock API :: Basic Authentication :: Incorrect user name or password",
       "event": [
         {
           "listen": "test",
@@ -77,7 +553,7 @@
       }
     },
     {
-      "name": "Basic Authentication: Successfully passed authentication",
+      "name": "Mock API :: Basic Authentication :: Successfully passed authentication",
       "event": [
         {
           "listen": "test",
@@ -98,6 +574,105 @@
           {
             "key": "Authorization",
             "value": "Basic YWRtaW46V2VsY29tZTIwMTch"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Mock API :: JWT Authorizer :: Anonymous user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 401\"] = responseCode.code === 401;",
+              "",
+              "tests[\"Response body has Unauthorized message\"] = JSON.parse(responseBody).message === 'Unauthorized';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{MockService}}/foo",
+        "method": "GET"
+      }
+    },
+    {
+      "name": "Mock API :: JWT Authorizer :: Use Basic authentication scheme",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 401\"] = responseCode.code === 401;",
+              "",
+              "tests[\"Response body has Unauthorized message\"] = JSON.parse(responseBody).message === 'Unauthorized';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": {
+            "username": "admin",
+            "password": "Welcome2017!"
+          }
+        },
+        "url": "{{MockService}}/foo",
+        "method": "GET"
+      }
+    },
+    {
+      "name": "Mock API :: JWT Authorizer :: Use unknown token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 401\"] = responseCode.code === 401;",
+              "",
+              "tests[\"Response body has Unauthorized message\"] = JSON.parse(responseBody).message === 'Unauthorized';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{MockService}}/foo",
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Mock API :: JWT Authorizer :: Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "tests[\"Status code is 200\"] = responseCode.code === 200;",
+              "",
+              "tests[\"Mock service response is OK\"] = JSON.parse(responseBody).Status === 'OK';"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "url": "{{MockService}}/foo",
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessKey}}"
           }
         ]
       }

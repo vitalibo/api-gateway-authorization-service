@@ -57,7 +57,7 @@ public class CognitoUserPool implements UserPool {
             changePassword(
                 adminInitiateAuthResult.getAuthenticationResult(),
                 previousPassword, proposedPassword);
-        } catch (NotAuthorizedException | UserNotFoundException | InvalidPasswordException e) {
+        } catch (NotAuthorizedException | UserNotFoundException | InvalidPasswordException | InvalidParameterException | LimitExceededException e) {
             throw new UserPoolException(e.getErrorMessage(), e);
         }
     }
