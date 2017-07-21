@@ -1,14 +1,29 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "",
+  "Description": "This AWS CloudFormation template Create/Update policy for Authorization Service",
   "Parameters": {
     "UserName": {
       "Type": "String",
+      "Default": "authorization-service",
       "Description": "User name"
     },
     "DeploymentBucket": {
       "Type": "String",
       "Description": "S3 bucket name where contains compiled lambdas"
+    }
+  },
+  "Conditions": {
+    "CreateDevelopResources": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "UserName"
+            },
+            "authorization-service"
+          ]
+        }
+      ]
     }
   },
   "Resources": {
@@ -289,7 +304,56 @@
         ]
       }
     },
-    "ApiGatewayRole": {
+    "AuthorizerExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": {
+          "Fn::Sub": "${UserName}-authorizer-execution-role"
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com",
+                  "apigateway.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "Inline",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "lambda:InvokeFunction"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${UserName}-jwt-authorizer"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${UserName}-basic-authenticator"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "ApiGatewayFullAccessRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
         "Path": "/",
@@ -335,11 +399,13 @@
         ]
       }
     },
-    "AuthorizerExecutionRole": {
+    "ApiGatewayReadAccessRole": {
+      "Condition": "CreateDevelopResources",
       "Type": "AWS::IAM::Role",
       "Properties": {
+        "Path": "/",
         "RoleName": {
-          "Fn::Sub": "${UserName}-authorizer-execution-role"
+          "Fn::Sub": "${UserName}-api-gateway-read-access-role"
         },
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
@@ -348,7 +414,6 @@
               "Effect": "Allow",
               "Principal": {
                 "Service": [
-                  "lambda.amazonaws.com",
                   "apigateway.amazonaws.com"
                 ]
               },
@@ -367,14 +432,17 @@
                 {
                   "Effect": "Allow",
                   "Action": [
-                    "lambda:InvokeFunction"
+                    "execute-api:Invoke"
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${UserName}-jwt-authorizer"
+                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/GET/*"
                     },
                     {
-                      "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${UserName}-basic-authenticator"
+                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/HEAD/*"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/OPTIONS/*"
                     }
                   ]
                 }

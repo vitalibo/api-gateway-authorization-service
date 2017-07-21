@@ -13,12 +13,12 @@ fi
 
 USER=$1
 S3_BUCKET=$2
-STACK_NAME="${USER}-stack"
+STACK_NAME="${USER}-infrastructure"
 BUILD=`date -u +%Y-%m-%dT%H:%M:%SZ`
 
 echo 'Create/Update stack initialized'
 for MODULE in 'server' 'basic-authenticator' 'jwt-authorizer'; do
-  aws s3 cp "authorization-service-${MODULE}/target/authorization-service-${MODULE}-1.0-SNAPSHOT.jar" \
+  aws s3 cp "../authorization-service-${MODULE}/target/authorization-service-${MODULE}-1.0-SNAPSHOT.jar" \
     "s3://${S3_BUCKET}/${USER}/${BUILD}/"
 done
 

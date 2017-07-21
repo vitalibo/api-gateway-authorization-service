@@ -1,0 +1,15 @@
+{
+  "responseType": "AUTHORIZER_CONFIGURATION_ERROR",
+  "patchOperations": [
+    {
+      "op": "replace",
+      "path": "/statusCode",
+      "value": "401"
+    },
+    {
+      "op": "add",
+      "path": "/responseTemplates/application~1json",
+      "value": "{ \"status\": 401, \"message\": \"Unauthorized\", \"request-id\": \"$context.requestId\" }"
+    }
+  ]
+}

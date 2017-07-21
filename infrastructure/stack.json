@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "This AWS CloudFormation template create infrastructure of Authorization Service",
+  "Description": "This AWS CloudFormation template Create/Update infrastructure of Authorization Service",
   "Parameters": {
     "UserName": {
       "Type": "String",

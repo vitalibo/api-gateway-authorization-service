@@ -20,8 +20,8 @@ function service_endpoint() {
 cat << EOF > data.json
 [
   {
-    "AuthorizationServer":"$(service_endpoint stack)",
-    "MockService" : "$(service_endpoint sample)"
+    "AuthorizationServer":"$(service_endpoint infrastructure)",
+    "MockService" : "$(service_endpoint mock-api)"
   }
 ]
 EOF

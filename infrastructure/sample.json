@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "",
+  "Description": "This AWS CloudFormation template Create/Update mock api for Authorization Service",
   "Parameters": {
     "UserName": {
       "Type": "String",
@@ -149,7 +149,7 @@
         "RestApiId": {
           "Ref": "ApiGateway"
         },
-        "StageName": "v2"
+        "StageName": "v1"
       },
       "DependsOn": "ApiDeployment"
     },
@@ -256,10 +256,7 @@
         "Description": "This group allow invoke AWS Api Gateway Read access for any resources",
         "GroupName": "ApiGatewayReadAccess",
         "RoleArn": {
-          "Fn::GetAtt": [
-            "ApiReadAccessRole",
-            "Arn"
-          ]
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${UserName}-api-gateway-read-access-role"
         },
         "UserPoolId": {
           "Fn::ImportValue": {
@@ -283,64 +280,17 @@
           }
         }
       }
-    },
-    "ApiReadAccessRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "Path": "/",
-        "RoleName": {
-          "Fn::Sub": "${UserName}-api-gateway-read-access-role"
-        },
-        "AssumeRolePolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "apigateway.amazonaws.com"
-                ]
-              },
-              "Action": [
-                "sts:AssumeRole"
-              ]
-            }
-          ]
-        },
-        "Policies": [
-          {
-            "PolicyName": "Inline",
-            "PolicyDocument": {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Action": [
-                    "execute-api:Invoke"
-                  ],
-                  "Resource": [
-                    {
-                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/GET/*"
-                    },
-                    {
-                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/HEAD/*"
-                    },
-                    {
-                      "Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/OPTIONS/*"
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        ]
-      }
     }
   },
   "Outputs": {
     "ServiceEndpoint": {
       "Value": {
         "Fn::Sub": "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${ApiStage}"
+      }
+    },
+    "MockRestApi": {
+      "Value": {
+        "Ref": "ApiGateway"
       }
     }
   }
