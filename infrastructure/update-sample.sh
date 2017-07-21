@@ -17,12 +17,20 @@ aws cloudformation deploy --template-file 'sample.json' --stack-name ${STACK_NAM
   --parameter-overrides UserName=${USER}  --capabilities 'CAPABILITY_NAMED_IAM'
 
 echo 'Customizing stack configuration'
-MOCK_REST_API=$( aws cloudformation describe-stacks --stack-name ${STACK_NAME} \
-  --query 'Stacks[0].Outputs[?OutputKey==`MockRestApi`].OutputValue' --output text )
 
-for NAME in 'AUTHORIZER_CONFIGURATION_ERROR' ; do
+function describe_stacks() {
+  aws cloudformation describe-stacks --stack-name ${STACK_NAME} \
+    --query 'Stacks[0].Outputs[?OutputKey==`'${1}'`].OutputValue' --output text
+}
+
+MOCK_REST_API=`describe_stacks 'MockRestApi'`
+STAGE_NAME=`describe_stacks 'StageName'`
+
+for NAME in 'ACCESS_DENIED' 'AUTHORIZER_CONFIGURATION_ERROR' 'UNAUTHORIZED' ; do
   aws apigateway update-gateway-response --rest-api-id ${MOCK_REST_API} \
     --cli-input-json file://configuration/response/${NAME}.json 2>&1 >/dev/null
 done
 
+aws apigateway create-deployment --rest-api-id ${MOCK_REST_API} --stage-name ${STAGE_NAME} \
+  --description 'Customize stack configuration' 2>&1 >/dev/null
 echo 'Done'

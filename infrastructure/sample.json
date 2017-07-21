@@ -292,6 +292,11 @@
       "Value": {
         "Ref": "ApiGateway"
       }
+    },
+    "StageName": {
+      "Value": {
+        "Ref": "ApiStage"
+      }
     }
   }
 }

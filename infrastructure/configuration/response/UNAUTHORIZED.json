@@ -1,0 +1,10 @@
+{
+  "responseType": "UNAUTHORIZED",
+  "patchOperations": [
+    {
+      "op": "add",
+      "path": "/responseTemplates/application~1json",
+      "value": "{ \"status\": 401, \"message\": \"Unauthorized\", \"request-id\": \"$context.requestId\" }"
+    }
+  ]
+}

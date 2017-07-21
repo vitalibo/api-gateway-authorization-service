@@ -1,0 +1,10 @@
+{
+  "responseType": "ACCESS_DENIED",
+  "patchOperations": [
+    {
+      "op": "add",
+      "path": "/responseTemplates/application~1json",
+      "value": "{ \"status\": 403, \"message\": \"Forbidden\", \"request-id\": \"$context.requestId\" }"
+    }
+  ]
+}
