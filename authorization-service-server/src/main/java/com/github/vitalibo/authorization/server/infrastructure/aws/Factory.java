@@ -53,7 +53,7 @@ public class Factory {
         return new ChangePasswordFacade(
             new ErrorState(),
             userPool,
-            velocityEngine.getTemplate("index.html"),
+            velocityEngine.getTemplate("public/index.html"),
             Arrays.asList(
                 ValidationRules::verifyBody,
                 ValidationRules::verifyBasicAuthenticationHeader),
