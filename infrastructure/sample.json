@@ -13,6 +13,9 @@
       "Properties": {
         "Name": {
           "Fn::Sub": "${UserName}-mock-api"
+        },
+        "Description": {
+          "Fn::Sub": "Mock API of Authorization Service"
         }
       }
     },

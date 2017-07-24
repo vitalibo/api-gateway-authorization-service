@@ -37,9 +37,7 @@
             "Fn::Sub": "${UserName}/${Build}/authorization-service-server-1.0-SNAPSHOT.jar"
           }
         },
-        "Description": {
-          "Fn::Sub": "Server lambda of ${UserName}"
-        },
+        "Description": "The Authorization Server lambda of Authorization Service",
         "Environment": {
           "Variables": {
             "AWS_COGNITO_CLIENT_ID": {
@@ -106,9 +104,7 @@
             "Fn::Sub": "${UserName}/${Build}/authorization-service-basic-authenticator-1.0-SNAPSHOT.jar"
           }
         },
-        "Description": {
-          "Fn::Sub": "Basic Authenticator lambda of ${UserName}"
-        },
+        "Description": "The Basic Authenticator lambda of Authorization Service",
         "Environment": {
           "Variables": {
             "AWS_COGNITO_CLIENT_ID": {
@@ -159,9 +155,7 @@
             "Fn::Sub": "${UserName}/${Build}/authorization-service-jwt-authorizer-1.0-SNAPSHOT.jar"
           }
         },
-        "Description": {
-          "Fn::Sub": "JWT Authorizer lambda of ${UserName}"
-        },
+        "Description": "The JWT Authorizer lambda of Authorization Service",
         "Environment": {
           "Variables": {
             "AWS_COGNITO_USER_POOL_ID": {
@@ -315,7 +309,7 @@
           }
         },
         "UserPoolName": {
-          "Fn::Sub": "${UserName}_user_pool"
+          "Fn::Sub": "${UserName}-user-pool"
         },
         "Schema": [
           {
@@ -366,7 +360,7 @@
     "ApiGatewayGroup": {
       "Type": "AWS::Cognito::UserPoolGroup",
       "Properties": {
-        "Description": "This group allow execdute AWS Api Gateway any resources",
+        "Description": "This group allow execute Amazon API Gateway ANY resources",
         "GroupName": "ApiGatewayFullAccess",
         "RoleArn": {
           "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${UserName}-api-gateway-full-access-role"
