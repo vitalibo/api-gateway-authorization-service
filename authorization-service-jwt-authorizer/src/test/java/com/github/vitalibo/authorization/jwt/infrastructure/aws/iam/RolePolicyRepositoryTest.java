@@ -12,6 +12,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +43,8 @@ public class RolePolicyRepositoryTest {
         claims.setRoles(Arrays.asList(
             "arn:aws:iam::1234567890:role/foo-role",
             "arn:aws:iam::0987654321:role/bar-role"));
+        claims.setExpiredAt(
+            ZonedDateTime.of(2009, 2, 13, 23, 31, 30, 0, ZoneId.of("UTC")));
 
         Mockito.when(mockAmazonIdentityManagement.getRolePolicy(Mockito.any()))
             .thenReturn(mockGetRolePolicyResult);
@@ -66,11 +70,13 @@ public class RolePolicyRepositoryTest {
         claims.setUsername("foo");
         claims.setRoles(Collections.singletonList(
             "arn:aws:iam::1234567890:user/foo-user"));
+        claims.setExpiredAt(
+            ZonedDateTime.of(2009, 2, 13, 23, 31, 30, 0, ZoneId.of("UTC")));
 
         Policy policy = repository.getPolicy(claims);
 
         Assert.assertNotNull(policy);
-        Assert.assertTrue(policy.getStatements().isEmpty());
+        Assert.assertEquals(policy.getStatements().size(), 1);
         Mockito.verify(mockAmazonIdentityManagement, Mockito.never()).getRolePolicy(Mockito.any());
     }
 

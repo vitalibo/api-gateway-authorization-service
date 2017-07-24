@@ -20,6 +20,23 @@
       "Resource": [
         "arn:aws:execute-api:eu-west-1:0987654321:*/POST/*"
       ]
+    },
+    {
+      "Sid": "2",
+      "Effect": "Deny",
+      "Action": [
+        "*"
+      ],
+      "Resource": [
+        "*"
+      ],
+      "Condition": {
+        "DateGreaterThan": {
+          "aws:CurrentTime": [
+            "2009-02-13T23:31:30Z"
+          ]
+        }
+      }
     }
   ]
 }

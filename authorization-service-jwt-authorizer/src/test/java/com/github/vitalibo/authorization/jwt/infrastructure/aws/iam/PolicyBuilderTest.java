@@ -7,18 +7,23 @@ import com.github.vitalibo.authorization.jwt.TestHelper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-public class PolicyCollectorTest {
+public class PolicyBuilderTest {
 
     @Test
-    public void testJoinPolicy() {
+    public void testBuild() {
         List<Policy> policies = Arrays.asList(
             makePolicy(Statement.Effect.Allow, "arn:aws:execute-api:eu-west-1:12344567890:*/GET/*"),
             makePolicy(Statement.Effect.Deny, "arn:aws:execute-api:eu-west-1:0987654321:*/POST/*"));
 
-        Policy actual = PolicyCollector.join(policies);
+        Policy actual = new PolicyBuilder()
+            .withPolicies(policies)
+            .withExpiredAt(ZonedDateTime.of(2009, 2, 13, 23, 31, 30, 0, ZoneId.of("UTC")))
+            .build();
 
         Assert.assertNotNull(actual);
         Assert.assertEquals(actual.toJson(), TestHelper.resourceAsJsonString("/Policy.json"));

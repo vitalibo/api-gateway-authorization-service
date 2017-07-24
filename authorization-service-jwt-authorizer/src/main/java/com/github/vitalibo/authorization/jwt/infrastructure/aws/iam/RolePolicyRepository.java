@@ -32,7 +32,10 @@ public class RolePolicyRepository implements PolicyRepository {
             .map(this::getRolePolicy)
             .collect(Collectors.toList());
 
-        return PolicyCollector.join(policies);
+        return new PolicyBuilder()
+            .withPolicies(policies)
+            .withExpiredAt(claims.getExpiredAt())
+            .build();
     }
 
     @SneakyThrows
