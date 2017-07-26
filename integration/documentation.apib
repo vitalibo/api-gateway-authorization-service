@@ -1,0 +1,161 @@
+FORMAT: 1A
+
+# API Gateway Authorization Service
+
+This API Blueprint documentation help you integrate your services with Authorization Service.
+
+## Common usage
+
+This API uses follow HTTP Status Codes for communicate with external world
+
+- `200 OK` - Successful request
+- `400 Bad Request` - Malformed request syntax
+- `401 Unauthorized` - Authentication is required, but has failed or has not yet been provided
+- `403 Forbidden` - The request was valid, but don't have access to resource
+- `404 Not Found` - The requested resource could not be found
+- `500 Internal Server Error` - Unexpected condition was encountered on server side
+
+### Make malformed request [POST]
+
+As example you can see malformed request of Client Credentials authorizations. Another HTTP Status Codes has the same response structure.
+
++ Request (application/json)
+
+        {
+            "grant_type": "token",
+            "client_id": "admin"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "status": 400,
+            "message": "Bad Request",
+            "errors": {
+                "grant_type": [
+                    "The value is unknown. Acceptable value 'client_credentials'"
+                ],
+                "client_secret": [
+                    "Required fields cannot be empty"
+                ]
+            },
+            "request-id": "7e16e326-7218-11e7-8449-9370dd2da9bc"
+        }
+
+## Authorization Server
+
+This section describe Authorization Server API.
+
+### Change Password [POST /account]
+
+You may change password using this actions. In case failed change password you are received acknowledged `false` and message with reason.
+
++ Request (application/json)
+
+        {
+            "username": "admin",
+            "previous_password": "9kQdL>hE",
+            "proposed_password": "secr3t"
+        }
+
++ Response 200 (application/json)
+
+    + Headers
+
+            x-amzn-requestid: e07d546f-721c-11e7-8c9c-9facfe482faa
+
+    + Body
+
+            {
+                "acknowledged": true,
+                "message": "Your password has been changed successfully!"
+            }
+
+
+### Client Credentials authorization flow [POST /oauth/token]
+
+In order to request access token you need make this request with correct credentials.
+According to specification Client Credentials authorization flow support two way to pass credentials, as authorization header or fully in body.
+If you are using basic, you will need to additionally pass along an Authorization header with the bearer type as Basic and as the value you use client_id : client_secret Base64 encoded.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Basic YWRtaW46c2VjcjN0
+
+    + Body
+
+            {
+                "grant_type": "client_credentials"
+            }
+
++ Request (application/json)
+
+        {
+            "grant_type": "client_credentials"
+            "client_id": "admin",
+            "client_secret": "secr3t"
+        }
+
++ Response 200 (application/json)
+
+    + Headers
+
+            x-amzn-requestid: 11144e0c-7221-11e7-a2d0-6b307a11d949
+
+    + Body
+
+            {
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
+                "expires_in": 1234567890,
+                "token_type": "Bearer"
+            }
+
+## Mock API
+
+This group describe usage Authorization Service custom Authorizers.
+
+### JWT Authorizer [GET /foo]
+
+As example usage JWT Authorizer please make following request.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ
+
++ Response 200 (application/json)
+
+    + Headers
+
+            x-amzn-requestid: b111b9d4-7223-11e7-ae9d-a7c7d464d027
+
+    + Body
+
+            {
+                "Status": "OK"
+            }
+
+### Basic Authenticator [POST /bar]
+
+As example usage Basic Authenticator please make following request.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Basic YWRtaW46c2VjcjN0
+
++ Response 200 (application/json)
+
+    + Headers
+
+            x-amzn-requestid: 915dc4d1-7224-11e7-b37a-db4c70da078a
+
+    + Body
+
+            {
+                "Status": "OK"
+            }
