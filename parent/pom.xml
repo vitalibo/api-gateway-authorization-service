@@ -15,7 +15,7 @@
         <aws.lambda.core.version>1.1.0</aws.lambda.core.version>
         <slf4j.version>1.7.21</slf4j.version>
         <lombok.version>1.16.16</lombok.version>
-        <nimbus.jose.jwt.version>4.30</nimbus.jose.jwt.version>
+        <nimbus.jose.jwt.version>7.9</nimbus.jose.jwt.version>
         <velocity.version>1.7</velocity.version>
         <testng.version>6.10</testng.version>
         <mockito.core.version>2.7.22</mockito.core.version>
